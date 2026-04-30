@@ -8,6 +8,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 import os
 import random
+import os
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 
 load_dotenv()
 

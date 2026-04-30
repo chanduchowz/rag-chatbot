@@ -2,6 +2,11 @@ streamlit
 python-dotenv
 langchain
 langchain-community
+langchain-core
 langchain-groq
 sentence-transformers
 faiss-cpu
+huggingface-hub
+transformers
+numpy
+pandas
