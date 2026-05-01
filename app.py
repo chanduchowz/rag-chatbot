@@ -1,5 +1,8 @@
 import streamlit as st
 import random
+import PyPDF2
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 st.set_page_config(page_title="KronosAI 🚀", page_icon="🧠", layout="wide")
 
@@ -21,69 +24,16 @@ with st.sidebar:
     )
 
 # ─────────────────────────────
-# FULL AI SYLLABUS ENGINE
+# AI KNOWLEDGE BASE
 # ─────────────────────────────
 AI_SYLLABUS = {
-    "python": """
-MODULE 1: Python for AI
-- Syntax, Variables, Data Types
-- Loops, Functions
-- File Handling, JSON, APIs
-- Virtual Environments, pip
-- Jupyter, VS Code
-Example: Python powers ML models like recommendation systems
-""",
-
-    "ai": """
-MODULE 2: AI Foundations
-- AI vs ML vs DL vs NLP vs CV
-- Real-world AI (Netflix, Tesla, Google)
-- Pretrained vs Fine-tuned models
-""",
-
-    "prompt": """
-MODULE 3: Prompt Engineering
-- System/User/Assistant roles
-- Zero-shot, Few-shot
-- Chain-of-Thought prompting
-- JSON structured prompts
-""",
-
-    "llm": """
-MODULE 5: Large Language Models
-- GPT, Claude, LLaMA, Mistral
-- Training vs Inference
-- Hallucinations & bias
-""",
-
-    "rag": """
-MODULE 9: RAG Systems
-- Retrieval Augmented Generation
-- Embeddings + Vector DB
-- Chat with PDFs
-""",
-
-    "langchain": """
-MODULE 10: LangChain & Agents
-- Chains, Tools, Memory
-- Agent workflows
-- Multi-step AI systems
-""",
-
-    "tools": """
-MODULE 11: AI Tools Ecosystem
-- ChatGPT, Claude, Gemini
-- Copilot, Cursor, Replit AI
-- n8n, Zapier, Make.com
-- Midjourney, DALL·E
-""",
-
-    "agents": """
-MODULE 16: Agentic AI Systems
-- AI agents that plan & execute tasks
-- Multi-agent collaboration
-- Autonomous workflows
-"""
+    "python": "Python is used in AI, ML, automation and data science.",
+    "ai": "AI is simulation of human intelligence.",
+    "ml": "Machine Learning learns patterns from data.",
+    "dl": "Deep Learning uses neural networks.",
+    "genai": "Generative AI creates text, images, code.",
+    "rag": "RAG = Retrieval + LLM generation system.",
+    "llm": "LLMs like GPT are transformer-based models."
 }
 
 # ─────────────────────────────
@@ -93,226 +43,189 @@ if mode == "🧠 AI Tutor":
 
     st.title("🧠 KronosAI Tutor")
 
-    q = st.text_input("Ask anything (Python / AI / ML / GenAI / Tools)")
+    q = st.text_input("Ask anything")
 
     if q:
-
         found = False
 
-        for k, v in AI_SYLLABUS.items():
+        for k in AI_SYLLABUS:
             if k in q.lower():
-                st.success(v)
-
-                st.info("""
-📌 Real Examples:
-- Netflix → Recommendation system (ML)
-- ChatGPT → LLM + RAG system
-- Tesla → Computer Vision AI
-
-📌 Tools:
-Python, scikit-learn, TensorFlow, LangChain
-""")
+                st.success(AI_SYLLABUS[k])
                 found = True
                 break
 
         if not found:
-            st.warning("""
-Covered Topics:
-✔ Python for AI  
-✔ Machine Learning  
-✔ Deep Learning  
-✔ GenAI / LLMs  
-✔ Prompt Engineering  
-✔ RAG Systems  
-✔ LangChain & Agents  
-✔ AI Tools Ecosystem  
-
-👉 Ask more specific topic
-""")
+            st.info("Ask about AI, ML, DL, GenAI, RAG, LLM, Python")
 
 # ─────────────────────────────
-# 💼 JOBS ENGINE
+# 💼 JOB ENGINE
 # ─────────────────────────────
 elif mode == "💼 Jobs":
 
-    st.title("💼 AI Job Engine")
+    st.title("💼 Job Engine")
 
     role = st.selectbox("Role", [
         "Data Analyst",
         "AI Engineer",
         "ML Engineer",
-        "GenAI Engineer",
-        "Python Developer",
-        "Business Analyst"
+        "Python Developer"
     ])
 
     exp = st.selectbox("Experience", ["Fresher", "1-3 Years", "3+ Years"])
 
-    JOBS = {
-        "Fresher": [
-            "TCS - Graduate Trainee",
-            "Infosys - Analyst",
-            "Wipro - Python Developer",
-            "Capgemini - Data Analyst"
-        ],
-        "1-3 Years": [
-            "Accenture - AI Engineer",
-            "Amazon - Data Analyst",
-            "IBM - ML Engineer",
-            "Cognizant - Developer"
-        ],
-        "3+ Years": [
-            "Google - Senior AI Engineer",
-            "Microsoft - Data Scientist",
-            "Meta - ML Engineer",
-            "Startup - GenAI Engineer"
-        ]
+    jobs = {
+        "Fresher": ["TCS Trainee", "Infosys Analyst", "Wipro Intern"],
+        "1-3 Years": ["Accenture AI Engineer", "Amazon Analyst"],
+        "3+ Years": ["Google Engineer", "Microsoft Data Scientist"]
     }
 
     st.subheader("🔥 Recommended Jobs")
 
-    for j in JOBS[exp]:
+    for j in jobs[exp]:
         st.success(j)
 
-    st.info("💡 Apply daily + build projects + improve GitHub")
-
 # ─────────────────────────────
-# 🎯 QUIZ SYSTEM
+# 🎯 QUIZ (FIXED MCQ SYSTEM)
 # ─────────────────────────────
 elif mode == "🎯 Quiz":
 
-    st.title("🎯 KronosAI Quiz Game")
+    st.title("🎯 KronosAI MCQ Quiz Game")
 
     quizzes = [
-        ("What is AI?", "Machines simulating human intelligence"),
-        ("What is ML?", "Learning from data"),
-        ("What is DL?", "Neural networks with layers"),
-        ("What is GenAI?", "Creates text/images/code"),
-        ("What is RAG?", "LLM + retrieval system"),
-        ("What is LLM?", "Large language model like GPT"),
-        ("What is Python used for AI?", "Building ML models"),
-        ("What is overfitting?", "Model memorizes training data")
+        {
+            "q": "What is Artificial Intelligence?",
+            "options": [
+                "Machines simulating human intelligence",
+                "A programming language",
+                "A database system",
+                "A web browser"
+            ],
+            "ans": "Machines simulating human intelligence"
+        },
+        {
+            "q": "What is Machine Learning?",
+            "options": [
+                "Learning from data",
+                "Manual coding",
+                "Operating system",
+                "Cloud storage"
+            ],
+            "ans": "Learning from data"
+        },
+        {
+            "q": "What is RAG?",
+            "options": [
+                "Retrieval + LLM system",
+                "Random AI generator",
+                "Robot automation game",
+                "Real analytics group"
+            ],
+            "ans": "Retrieval + LLM system"
+        },
+        {
+            "q": "What is LLM?",
+            "options": [
+                "Large Language Model",
+                "Logical Learning Machine",
+                "Light Layer Model",
+                "Long Learning Method"
+            ],
+            "ans": "Large Language Model"
+        }
     ]
 
-    q, ans = random.choice(quizzes)
+    qz = random.choice(quizzes)
 
-    st.subheader(q)
+    st.subheader(qz["q"])
 
-    user = st.text_input("Your Answer")
+    choice = st.radio("Select answer:", qz["options"], index=None)
 
-    if st.button("Check"):
+    if st.button("Submit Answer"):
 
-        if ans.lower() in user.lower():
-            st.success("Correct 🎉")
+        if choice is None:
+            st.warning("Please select an option")
+        elif choice == qz["ans"]:
+            st.success("✅ Correct Answer 🎉")
         else:
-            st.error(f"Wrong ❌ Answer: {ans}")
+            st.error(f"❌ Wrong Answer\nCorrect: {qz['ans']}")
 
-        st.info("💡 Learn daily → become AI expert faster")
+    st.info("💡 Practice daily quizzes to improve AI skills")
 
 # ─────────────────────────────
-# 📄 RESUME BUILDER (PRO ORDER)
+# 📄 RESUME BUILDER (ATS + ANALYSIS)
 # ─────────────────────────────
 elif mode == "📄 Resume Builder":
 
-    st.title("📄 ATS Resume Builder")
+    st.title("📄 ATS Resume Analyzer")
 
-    name = st.text_input("Name")
-    email = st.text_input("Email")
-    phone = st.text_input("Phone")
+    uploaded_file = st.file_uploader("Upload Resume (PDF - max 5MB)", type=["pdf"])
+    job_desc = st.text_area("Paste Job Description")
 
-    summary = st.text_area("Professional Summary")
-    education = st.text_area("Education")
-    skills = st.text_area("Skills")
-    projects = st.text_area("Projects")
-    experience = st.text_area("Internships / Experience")
-    certs = st.text_area("Certifications")
-    achievements = st.text_area("Achievements")
-    tools = st.text_area("Tools & Technologies")
-    links = st.text_area("GitHub / Portfolio Links")
+    def extract_text(file):
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        return text
 
-    resume = f"""
-========================
-RESUME
-========================
+    def score(resume, job):
+        tfidf = TfidfVectorizer()
+        vectors = tfidf.fit_transform([resume, job])
+        return round(cosine_similarity(vectors[0], vectors[1])[0][0] * 100, 2)
 
-HEADER
-Name: {name}
-Email: {email}
-Phone: {phone}
+    if uploaded_file:
 
-PROFESSIONAL SUMMARY
-{summary}
+        if uploaded_file.size > 5 * 1024 * 1024:
+            st.error("File too large (Max 5MB)")
+        else:
 
-EDUCATION
-{education}
+            resume_text = extract_text(uploaded_file)
 
-SKILLS
-{skills}
+            if st.button("Analyze Resume"):
 
-PROJECTS
-{projects}
+                if len(job_desc) < 10:
+                    st.error("Paste job description")
+                else:
 
-INTERNSHIPS / EXPERIENCE
-{experience}
+                    ats = score(resume_text, job_desc)
 
-CERTIFICATIONS
-{certs}
+                    st.success(f"ATS Score: {ats}/100")
 
-ACHIEVEMENTS
-{achievements}
-
-TOOLS & TECHNOLOGIES
-{tools}
-
-LINKS
-{links}
-"""
-
-    if st.button("Generate Resume"):
-        st.text_area("ATS Resume", resume, height=500)
+                    if ats < 50:
+                        st.warning("Low match → Add keywords & projects")
+                    elif ats < 75:
+                        st.info("Good match → Improve skills section")
+                    else:
+                        st.success("Excellent match → Ready to apply")
 
 # ─────────────────────────────
-# 🌐 PORTFOLIO BUILDER (STRUCTURED)
+# 🌐 PORTFOLIO BUILDER
 # ─────────────────────────────
 elif mode == "🌐 Portfolio Builder":
 
     st.title("🌐 Portfolio Builder")
 
     name = st.text_input("Name")
-
-    about = st.text_area("About Me")
     skills = st.text_area("Skills")
     projects = st.text_area("Projects")
-    certs = st.text_area("Certifications")
-    exp = st.text_area("Experience")
-    resume_link = st.text_input("Resume Link")
-    contact = st.text_input("Contact Info")
 
-    portfolio = f"""
-HOME / HERO
+    if st.button("Generate Portfolio"):
+
+        portfolio = f"""
+HOME
 {name}
 
-ABOUT ME
-{about}
+ABOUT
+AI/ML Enthusiast
 
 SKILLS
 {skills}
 
-PROJECTS (MOST IMPORTANT)
+PROJECTS (IMPORTANT)
 {projects}
 
-CERTIFICATIONS
-{certs}
-
-EXPERIENCE
-{exp}
-
-RESUME DOWNLOAD
-{resume_link}
-
 CONTACT
-{contact}
+Available for AI / ML roles
 """
 
-    if st.button("Generate Portfolio"):
-        st.text_area("Portfolio Structure", portfolio, height=500)
+        st.text_area("Portfolio", portfolio, height=400)
