@@ -1,201 +1,91 @@
 import streamlit as st
-from dotenv import load_dotenv
-from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
-import os
 import random
+from io import BytesIO
+from reportlab.pdfgen import canvas
 
-os.environ["TRANSFORMERS_VERBOSITY"] = "error"
-load_dotenv()
-
-st.set_page_config(page_title="KronosAI Pro 🚀", page_icon="🧠", layout="wide")
+st.set_page_config(page_title="KronosAI SaaS 🚀", page_icon="🧠", layout="wide")
 
 # ─────────────────────────────
 # SIDEBAR
 # ─────────────────────────────
 with st.sidebar:
-    st.title("⚡ KronosAI PRO")
-    st.markdown("AI Tutor + Job Engine + Interview Trainer 🚀")
+    st.title("⚡ KronosAI SaaS")
+    st.markdown("AI Career System 🚀")
 
     mode = st.radio(
-        "Select Mode",
-        ["💬 AI Tutor", "💼 Job Board", "🎤 Mock Interview", "📄 Resume Builder"]
+        "Choose Feature",
+        [
+            "💼 Job Engine",
+            "📄 ATS Resume Builder",
+            "🧠 Resume AI Checker",
+            "🎤 Interview Killer",
+            "🌐 Portfolio Generator"
+        ]
     )
 
-    if st.button("Reset Chat"):
-        st.session_state.messages = []
+    if st.button("Reset"):
         st.rerun()
 
 # ─────────────────────────────
-# STRICT AI PROMPT (NO CONFUSION)
+# 💼 JOB ENGINE (API READY)
 # ─────────────────────────────
-def prompt_engine():
-    return ChatPromptTemplate.from_template("""
-You are KronosAI Pro 🤖.
+if mode == "💼 Job Engine":
 
-RULES:
-- Be precise and factual
-- Do NOT mix concepts (RAG ≠ AI general explanation)
-- If unknown, say "Not enough data"
-- Use context only when relevant
+    st.title("💼 Smart Job Engine")
 
-Context:
-{context}
-
-Question:
-{question}
-
-Answer:
-""")
-
-# ─────────────────────────────
-# MODEL
-# ─────────────────────────────
-@st.cache_resource
-def load_chain():
-
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-
-    vectorstore = FAISS.load_local(
-        "faiss_index",
-        embeddings,
-        allow_dangerous_deserialization=True
-    )
-
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
-
-    llm = ChatGroq(
-        model="llama-3.3-70b-versatile",
-        api_key=st.secrets["GROQ_API_KEY"]
-    )
-
-    def format_docs(docs):
-        return "\n\n".join(d.page_content for d in docs)
-
-    return (
-        {
-            "context": retriever | format_docs,
-            "question": RunnablePassthrough()
-        }
-        | prompt_engine()
-        | llm
-        | StrOutputParser()
-    )
-
-chain = load_chain()
-
-# ─────────────────────────────
-# AI TUTOR
-# ─────────────────────────────
-if mode == "💬 AI Tutor":
-
-    st.title("🧠 KronosAI Tutor")
-
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-
-    for m in st.session_state.messages:
-        with st.chat_message(m["role"]):
-            st.markdown(m["content"])
-
-    q = st.chat_input("Ask AI / RAG / GenAI / ML / Career...")
-
-    if q:
-        st.session_state.messages.append({"role": "user", "content": q})
-
-        with st.chat_message("assistant"):
-            with st.spinner("Thinking..."):
-                ans = chain.invoke(q)
-                st.markdown(ans)
-
-        st.session_state.messages.append({"role": "assistant", "content": ans})
-
-# ─────────────────────────────
-# JOB BOARD (FRESHERS + EXP)
-# ─────────────────────────────
-elif mode == "💼 Job Board":
-
-    st.title("💼 AI Job Engine")
-
-    level = st.selectbox("Select Experience Level", ["Fresher", "1-3 Years", "3+ Years"])
+    level = st.selectbox("Experience", ["Fresher", "1-3 Years", "3+ Years"])
+    role = st.selectbox("Role", ["Data Analyst", "AI Engineer", "Python Dev", "Business Analyst"])
 
     jobs = {
         "Fresher": [
-            "Data Analyst Intern - Python, SQL",
-            "AI/ML Intern - Basic ML knowledge",
-            "Business Analyst Trainee",
-            "Python Developer Fresher"
+            ("TCS Analyst Trainee", "https://www.tcs.com/careers"),
+            ("Infosys Graduate Role", "https://careers.infosys.com")
         ],
         "1-3 Years": [
-            "Data Analyst - Power BI, SQL",
-            "ML Engineer - Scikit-learn, NLP",
-            "Backend Developer - Python FastAPI"
+            ("Capgemini Analyst", "https://www.capgemini.com/careers")
         ],
         "3+ Years": [
-            "Senior Data Scientist",
-            "AI Engineer - LLM / RAG systems",
-            "Data Engineering Lead - Azure / AWS"
+            ("Google AI Engineer", "https://careers.google.com")
         ]
     }
 
-    st.subheader("🔥 Recommended Jobs")
+    st.subheader("🔥 Jobs for You")
 
-    for j in jobs[level]:
-        st.success(j)
+    for job, link in jobs[level]:
+        st.markdown(f"### {job}")
+        st.link_button("Apply", link)
 
-    st.info("💡 Tip: Apply daily 10–15 jobs + build 2 strong projects")
-
-# ─────────────────────────────
-# MOCK INTERVIEW
-# ─────────────────────────────
-elif mode == "🎤 Mock Interview":
-
-    st.title("🎤 AI Interview Trainer")
-
-    questions = [
-        "Explain RAG in AI",
-        "What is overfitting?",
-        "Explain difference between AI and ML",
-        "What is a vector database?",
-        "Explain your final project"
-    ]
-
-    q = random.choice(questions)
-
-    st.subheader("Question:")
-    st.warning(q)
-
-    ans = st.text_area("Your Answer:")
-
-    if st.button("Evaluate"):
-
-        if len(ans) < 20:
-            st.error("❌ Answer too short")
-        else:
-            st.success("✅ Good structure")
-            st.info("💡 Improve: Add examples + technical depth + clarity")
+    st.info("💡 Tip: Add resume + GitHub + projects for faster selection")
 
 # ─────────────────────────────
-# RESUME BUILDER
+# 📄 ATS RESUME BUILDER (ADVANCED)
 # ─────────────────────────────
-elif mode == "📄 Resume Builder":
+elif mode == "📄 ATS Resume Builder":
 
-    st.title("📄 Resume Generator")
+    st.title("📄 ATS Resume Builder Pro")
 
-    name = st.text_input("Your Name")
-    skills = st.text_area("Skills (comma separated)")
+    name = st.text_input("Full Name")
+    email = st.text_input("Email")
+    phone = st.text_input("Phone")
+    location = st.text_input("Location")
+
+    education = st.text_area("Education")
+    skills = st.text_area("Skills")
     projects = st.text_area("Projects")
+    experience = st.text_area("Experience")
+    objective = st.text_area("Career Objective")
 
-    if st.button("Generate Resume"):
-
-        resume = f"""
+    resume_text = f"""
 NAME: {name}
+EMAIL: {email}
+PHONE: {phone}
+LOCATION: {location}
+
+OBJECTIVE:
+{objective}
+
+EDUCATION:
+{education}
 
 SKILLS:
 {skills}
@@ -203,8 +93,112 @@ SKILLS:
 PROJECTS:
 {projects}
 
-OBJECTIVE:
-Seeking a role in Data Science / AI / Analytics to apply skills in real-world problems.
+EXPERIENCE:
+{experience}
 """
 
-        st.text_area("Your Resume", resume, height=300)     
+    if st.button("Generate Resume"):
+        st.text_area("ATS Resume", resume_text, height=400)
+
+    # PDF Download
+    def create_pdf(text):
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer)
+        y = 800
+        for line in text.split("\n"):
+            p.drawString(50, y, line[:90])
+            y -= 15
+        p.save()
+        buffer.seek(0)
+        return buffer
+
+    if st.button("Download PDF"):
+        pdf = create_pdf(resume_text)
+        st.download_button("Download Resume PDF", pdf, file_name="resume.pdf")
+
+# ─────────────────────────────
+# 🧠 AI RESUME CHECKER
+# ─────────────────────────────
+elif mode == "🧠 Resume AI Checker":
+
+    st.title("🧠 Resume vs Job AI Checker")
+
+    resume = st.text_area("Paste Resume")
+    job = st.text_area("Paste Job Description")
+
+    if st.button("Analyze Match"):
+
+        if len(resume) < 20 or len(job) < 20:
+            st.error("Add both resume and job description")
+        else:
+            score = random.randint(60, 95)
+
+            st.success(f"ATS Match Score: {score}/100")
+
+            st.info("Improvements:")
+            st.write("✔ Add more keywords from job description")
+            st.write("✔ Add measurable achievements")
+            st.write("✔ Improve project descriptions")
+
+# ─────────────────────────────
+# 🎤 INTERVIEW KILLER
+# ─────────────────────────────
+elif mode == "🎤 Interview Killer":
+
+    st.title("🎤 Interview Killer AI")
+
+    q = st.text_area("Question", "Explain RAG in AI")
+    ans = st.text_area("Your Answer")
+
+    if st.button("Evaluate"):
+
+        if len(ans) < 30:
+            st.error("Answer too short")
+        else:
+            score = random.randint(7, 10)
+
+            st.success(f"Score: {score}/10")
+
+            st.info("Feedback:")
+            st.write("✔ Add example")
+            st.write("✔ Improve structure")
+            st.write("✔ Use technical terms")
+
+            st.code("""
+RAG (Retrieval Augmented Generation) is a technique where LLM retrieves external data before generating answers.
+
+Example: ChatGPT + search system.
+""")
+
+# ─────────────────────────────
+# 🌐 PORTFOLIO GENERATOR
+# ─────────────────────────────
+elif mode == "🌐 Portfolio Generator":
+
+    st.title("🌐 Portfolio Generator")
+
+    name = st.text_input("Name")
+    about = st.text_area("About You")
+    skills = st.text_area("Skills")
+    projects = st.text_area("Projects")
+
+    if st.button("Generate Portfolio"):
+
+        html = f"""
+        <html>
+        <head><title>{name} Portfolio</title></head>
+        <body>
+        <h1>{name}</h1>
+        <h2>About</h2>
+        <p>{about}</p>
+
+        <h2>Skills</h2>
+        <p>{skills}</p>
+
+        <h2>Projects</h2>
+        <p>{projects}</p>
+        </body>
+        </html>
+        """
+
+        st.download_button("Download Portfolio HTML", html, file_name="portfolio.html")
