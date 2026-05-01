@@ -11,3 +11,4 @@ transformers
 numpy
 pandas
 langchain-huggingface
+reportlab
