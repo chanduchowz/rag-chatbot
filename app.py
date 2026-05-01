@@ -8,18 +8,21 @@ from sklearn.metrics.pairwise import cosine_similarity
 from gtts import gTTS
 import os
 
+# ─────────────────────────────
+# CONFIG
+# ─────────────────────────────
 st.set_page_config(page_title="KronosAI SaaS 🚀", page_icon="🧠", layout="wide")
 
 # ─────────────────────────────
-# SIDEBAR (SAAS MODE)
+# SIDEBAR
 # ─────────────────────────────
 with st.sidebar:
     st.title("⚡ KronosAI SaaS")
-    st.markdown("AI Career Platform")
 
     mode = st.radio(
-        "Modules",
+        "Select Module",
         [
+            "💬 AI Tutor",
             "💼 AI Job Feed",
             "📄 ATS Resume Builder",
             "🧠 AI Resume Checker",
@@ -29,42 +32,60 @@ with st.sidebar:
     )
 
 # ─────────────────────────────
-# 💼 AI JOB FEED (API READY STRUCTURE)
+# 💬 AI TUTOR (SAFE VERSION - NO FAISS ERROR)
 # ─────────────────────────────
-if mode == "💼 AI Job Feed":
+if mode == "💬 AI Tutor":
 
-    st.title("💼 Smart AI Job Feed")
+    st.title("💬 KronosAI Tutor")
+
+    st.info("Ask anything about AI / ML / GenAI / RAG / Careers")
+
+    q = st.text_input("Your Question")
+
+    if q:
+
+        if "rag" in q.lower():
+            st.success("RAG = Retrieval Augmented Generation (search + LLM combination)")
+        elif "genai" in q.lower():
+            st.success("GenAI = AI that generates content like text, images, code")
+        else:
+            st.info("AI Answer: This is a concept in AI/ML. Learn step by step from basics → advanced.")
+
+# ─────────────────────────────
+# 💼 JOB FEED
+# ─────────────────────────────
+elif mode == "💼 AI Job Feed":
+
+    st.title("💼 AI Job Engine")
 
     role = st.selectbox("Role", ["Data Analyst", "AI Engineer", "GenAI Engineer", "ML Engineer"])
-    exp = st.selectbox("Experience", ["Fresher", "1-3 Years", "3+ Years"])
-
-    st.subheader("🔥 Recommended Jobs")
 
     jobs = {
-        "Data Analyst": ["TCS DA Role", "Infosys Analyst", "Capgemini BI Analyst"],
-        "AI Engineer": ["Google AI Engineer", "Microsoft AI Role", "IBM AI Role"],
-        "GenAI Engineer": ["OpenAI Startup Roles", "LangChain Engineer Jobs"],
+        "Data Analyst": ["TCS Analyst", "Infosys DA", "Capgemini BI Role"],
+        "AI Engineer": ["Google AI Engineer", "Microsoft AI Role"],
+        "GenAI Engineer": ["OpenAI Startup Roles", "LangChain Jobs"],
         "ML Engineer": ["Amazon ML Role", "Meta ML Engineer"]
     }
 
+    st.subheader("🔥 Jobs")
     for j in jobs[role]:
         st.success(j)
 
-    st.markdown("👉 Apply via LinkedIn / Naukri APIs (integration ready)")
+    st.info("Apply via LinkedIn / Naukri")
 
 # ─────────────────────────────
 # 📄 ATS RESUME BUILDER
 # ─────────────────────────────
 elif mode == "📄 ATS Resume Builder":
 
-    st.title("📄 ATS Resume Builder")
+    st.title("📄 Resume Builder")
 
     name = st.text_input("Name")
     email = st.text_input("Email")
     skills = st.text_area("Skills")
     projects = st.text_area("Projects")
 
-    resume_text = f"""
+    resume = f"""
 NAME: {name}
 EMAIL: {email}
 
@@ -76,7 +97,7 @@ PROJECTS:
 """
 
     if st.button("Generate Resume"):
-        st.text_area("ATS Resume", resume_text, height=300)
+        st.text_area("ATS Resume", resume, height=300)
 
         def create_pdf(text):
             buffer = BytesIO()
@@ -89,18 +110,18 @@ PROJECTS:
             buffer.seek(0)
             return buffer
 
-        pdf = create_pdf(resume_text)
+        pdf = create_pdf(resume)
         st.download_button("Download PDF", pdf, file_name="resume.pdf")
 
 # ─────────────────────────────
-# 🧠 AI RESUME CHECKER (REAL SCORING)
+# 🧠 AI RESUME CHECKER
 # ─────────────────────────────
 elif mode == "🧠 AI Resume Checker":
 
-    st.title("🧠 AI ATS Score Engine")
+    st.title("🧠 ATS Score Checker")
 
     uploaded = st.file_uploader("Upload Resume PDF", type=["pdf"])
-    job_desc = st.text_area("Paste Job Description")
+    job = st.text_area("Paste Job Description")
 
     def extract(file):
         reader = PyPDF2.PdfReader(file)
@@ -109,83 +130,71 @@ elif mode == "🧠 AI Resume Checker":
             text += p.extract_text()
         return text
 
-    def calculate_score(resume, job):
+    def score(resume, job):
         vectorizer = TfidfVectorizer()
-        vectors = vectorizer.fit_transform([resume, job])
-        score = cosine_similarity(vectors[0], vectors[1])[0][0]
-        return round(score * 100, 2)
+        v = vectorizer.fit_transform([resume, job])
+        return round(cosine_similarity(v[0], v[1])[0][0] * 100, 2)
 
     if uploaded:
 
-        resume_text = extract(uploaded)
+        if uploaded.size > 5 * 1024 * 1024:
+            st.error("Max 5MB allowed")
+        else:
+            resume_text = extract(uploaded)
 
-        if st.button("Check ATS Score"):
+            if st.button("Check Score"):
 
-            if len(job_desc) < 10:
-                st.error("Add Job Description")
-            else:
-                score = calculate_score(resume_text, job_desc)
+                s = score(resume_text, job)
 
-                st.success(f"ATS Match Score: {score}/100")
+                st.success(f"ATS Score: {s}/100")
 
-                if score < 50:
-                    st.warning("Low Match - Improve keywords")
-                elif score < 75:
-                    st.info("Good Match - Improve projects")
+                if s < 50:
+                    st.warning("Improve keywords")
+                elif s < 75:
+                    st.info("Good resume")
                 else:
-                    st.success("Excellent Match - Ready to apply")
+                    st.success("Strong resume")
 
 # ─────────────────────────────
-# 🎤 VOICE INTERVIEW BOT (TEXT + SPEECH)
+# 🎤 VOICE INTERVIEW BOT
 # ─────────────────────────────
 elif mode == "🎤 Voice Interview Bot":
 
-    st.title("🎤 AI Voice Interviewer")
+    st.title("🎤 AI Interview Bot")
 
-    questions = [
-        "Explain RAG in AI",
-        "What is overfitting?",
-        "Explain your project",
-        "What is GenAI?",
-        "What is vector database?"
-    ]
+    q = random.choice([
+        "Explain RAG",
+        "What is ML?",
+        "Explain GenAI",
+        "What is overfitting?"
+    ])
 
-    q = random.choice(questions)
-
-    st.warning(f"Question: {q}")
+    st.warning(q)
 
     if st.button("🔊 Speak Question"):
-
         tts = gTTS(q)
         tts.save("q.mp3")
-        audio_file = open("q.mp3", "rb")
-        st.audio(audio_file.read(), format="audio/mp3")
+        st.audio("q.mp3")
 
     ans = st.text_area("Your Answer")
 
-    if st.button("Evaluate Answer"):
+    if st.button("Evaluate"):
 
-        if len(ans) < 30:
-            st.error("Too short answer")
+        if len(ans) < 20:
+            st.error("Too short")
         else:
-            st.success("Good Answer Structure")
-
-            st.info("""
-Improve:
-✔ Add example  
-✔ Add technical terms  
-✔ Structure: Definition → Working → Example  
-""")
+            st.success("Good Answer")
+            st.info("Add example + structure + keywords")
 
 # ─────────────────────────────
-# 🌐 PORTFOLIO GENERATOR (PRO SAAS)
+# 🌐 PORTFOLIO GENERATOR
 # ─────────────────────────────
 elif mode == "🌐 Portfolio Generator":
 
-    st.title("🌐 AI Portfolio Builder")
+    st.title("🌐 Portfolio Builder")
 
     name = st.text_input("Name")
-    role = st.selectbox("Role", ["Data Analyst", "AI Engineer", "ML Engineer", "GenAI Engineer"])
+    role = st.selectbox("Role", ["Data Analyst", "AI Engineer", "ML Engineer"])
 
     about = st.text_area("About")
     skills = st.text_area("Skills")
