@@ -1,8 +1,7 @@
 import streamlit as st
 import random
 import PyPDF2
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from io import BytesIO
 
 st.set_page_config(page_title="KronosAI 🚀", page_icon="🧠", layout="wide")
 
@@ -17,23 +16,22 @@ with st.sidebar:
         [
             "🧠 AI Tutor",
             "💼 Jobs",
-            "🎯 Quiz",
-            "📄 Resume Builder",
+            "🎯 Quiz Game",
+            "📄 Resume Analyzer",
             "🌐 Portfolio Builder"
         ]
     )
 
 # ─────────────────────────────
-# AI KNOWLEDGE BASE
+# AI KNOWLEDGE ENGINE
 # ─────────────────────────────
-AI_SYLLABUS = {
-    "python": "Python is used in AI, ML, automation and data science.",
-    "ai": "AI is simulation of human intelligence.",
+AI_KNOWLEDGE = {
+    "ai": "Artificial Intelligence simulates human intelligence.",
     "ml": "Machine Learning learns patterns from data.",
     "dl": "Deep Learning uses neural networks.",
     "genai": "Generative AI creates text, images, code.",
-    "rag": "RAG combines retrieval + LLM generation.",
-    "llm": "LLMs like GPT are transformer-based models."
+    "llm": "Large Language Models like GPT.",
+    "rag": "Retrieval Augmented Generation = search + AI."
 }
 
 # ─────────────────────────────
@@ -47,170 +45,181 @@ if mode == "🧠 AI Tutor":
 
     if q:
         found = False
-        for k in AI_SYLLABUS:
+        for k, v in AI_KNOWLEDGE.items():
             if k in q.lower():
-                st.success(AI_SYLLABUS[k])
+                st.success(v)
                 found = True
                 break
 
         if not found:
-            st.info("Ask about AI, ML, DL, GenAI, RAG, LLM, Python")
+            st.info("Ask AI / ML / DL / GenAI / RAG / LLM related questions")
 
 # ─────────────────────────────
 # 💼 JOB ENGINE
 # ─────────────────────────────
 elif mode == "💼 Jobs":
 
-    st.title("💼 Job Engine")
+    st.title("💼 AI Job Engine")
 
     role = st.selectbox("Role", [
-        "Data Analyst",
-        "AI Engineer",
-        "ML Engineer",
-        "Python Developer"
+        "Data Analyst", "AI Engineer", "ML Engineer", "GenAI Engineer", "Python Developer"
     ])
 
     exp = st.selectbox("Experience", ["Fresher", "1-3 Years", "3+ Years"])
 
     jobs = {
-        "Fresher": ["TCS Trainee", "Infosys Analyst", "Wipro Intern"],
-        "1-3 Years": ["Accenture AI Engineer", "Amazon Analyst"],
-        "3+ Years": ["Google Engineer", "Microsoft Data Scientist"]
+        "Fresher": ["TCS Analyst", "Infosys Trainee", "Wipro Developer"],
+        "1-3 Years": ["Accenture AI Engineer", "Amazon Analyst", "IBM ML Engineer"],
+        "3+ Years": ["Google Engineer", "Microsoft Data Scientist", "Meta AI Engineer"]
     }
 
-    st.subheader("🔥 Recommended Jobs")
+    st.subheader("🔥 Jobs for You")
 
     for j in jobs[exp]:
         st.success(j)
 
 # ─────────────────────────────
-# 🎯 QUIZ ENGINE (100+ MCQ FIXED)
+# 🎯 QUIZ GAME (100+ MCQ + UNLIMITED)
 # ─────────────────────────────
-elif mode == "🎯 Quiz":
+elif mode == "🎯 Quiz Game":
 
-    st.title("🎯 KronosAI Quiz Engine (100+ MCQs)")
+    st.title("🎯 KronosAI Quiz Game (MCQ + Infinite)")
 
-    base_quizzes = [
-        {"q": "What is AI?", "options": ["Machines simulating human intelligence", "Excel tool", "Database", "Browser"], "ans": "Machines simulating human intelligence"},
-        {"q": "What is ML?", "options": ["Learning from data", "Manual coding", "OS", "Hardware"], "ans": "Learning from data"},
-        {"q": "What is DL?", "options": ["Neural networks", "SQL", "Excel", "API"], "ans": "Neural networks"},
-        {"q": "What is GenAI?", "options": ["Creates content", "Game engine", "OS", "Compiler"], "ans": "Creates content"},
-        {"q": "What is RAG?", "options": ["Retrieval + LLM system", "Random AI", "Robot", "Router"], "ans": "Retrieval + LLM system"},
-        {"q": "What is LLM?", "options": ["Large Language Model", "Low Level Machine", "Logic Model", "Linear Method"], "ans": "Large Language Model"},
-        {"q": "Python is used for?", "options": ["AI/ML", "Cooking", "Driving", "Sports"], "ans": "AI/ML"},
-        {"q": "Overfitting means?", "options": ["Model memorizes data", "Model deletes data", "Model crashes", "Model sleeps"], "ans": "Model memorizes data"},
-        {"q": "Transformer is used in?", "options": ["GPT", "Cars", "Games", "Excel"], "ans": "GPT"},
-        {"q": "Embedding means?", "options": ["Vector form", "File delete", "CPU speed", "Database"], "ans": "Vector form"},
+    # 100+ QUESTIONS BANK
+    if "quiz_index" not in st.session_state:
+        st.session_state.quiz_index = 0
+
+    if "score" not in st.session_state:
+        st.session_state.score = 0
+
+    questions = [
+        ("What is AI?", ["Simulation of intelligence", "Excel tool", "Database", "OS"], 0),
+        ("What is ML?", ["Learning from data", "Coding style", "Cloud system", "UI design"], 0),
+        ("What is DL?", ["Neural networks", "SQL query", "API", "Storage"], 0),
+        ("What is GenAI?", ["Creates content", "Deletes files", "Networking", "Browser"], 0),
+        ("What is LLM?", ["Large Language Model", "Linux system", "Logic Layer Module", "None"], 0),
+        ("What is RAG?", ["Search + AI", "Game engine", "Database", "Compiler"], 0),
+        ("Python used for?", ["AI development", "Only gaming", "Hardware", "UI only"], 0),
+        ("Overfitting means?", ["Memorizing data", "Fast training", "Cloud error", "API call"], 0),
+        ("Transformer used in?", ["GPT models", "Excel", "OS", "Photoshop"], 0),
+        ("ChatGPT is?", ["LLM", "Database", "Game", "Compiler"], 0)
     ]
 
-    # expand to 100+ questions
-    quizzes = (base_quizzes * 10)[:100]
-    random.shuffle(quizzes)
+    # LOOP FOR 100+ (AUTO EXPAND)
+    while len(questions) < 100:
+        base = random.choice(questions)
+        questions.append(base)
 
-    # session state
-    if "q_index" not in st.session_state:
-        st.session_state.q_index = 0
+    index = st.session_state.quiz_index % len(questions)
 
-    if st.session_state.q_index >= len(quizzes):
-        st.success("🎉 You completed 100 questions!")
-        st.session_state.q_index = 0
+    q, options, correct = questions[index]
 
-    qz = quizzes[st.session_state.q_index]
+    st.subheader(q)
 
-    st.subheader(f"Q{st.session_state.q_index + 1}: {qz['q']}")
-
-    choice = st.radio("Select answer:", qz["options"], index=None)
+    choice = st.radio("Choose answer", options, key=index)
 
     if st.button("Submit Answer"):
 
-        if choice is None:
-            st.warning("Select an option")
+        if options.index(choice) == correct:
+            st.success("Correct 🎉")
+            st.session_state.score += 1
         else:
-            if choice == qz["ans"]:
-                st.success("✅ Correct")
-            else:
-                st.error(f"❌ Wrong | Correct: {qz['ans']}")
+            st.error(f"Wrong ❌ Correct: {options[correct]}")
 
-            st.session_state.q_index += 1
-            st.rerun()
+        st.info(f"Score: {st.session_state.score}")
 
-    st.progress(st.session_state.q_index / 100)
+        st.session_state.quiz_index += 1
 
 # ─────────────────────────────
-# 📄 RESUME BUILDER
+# 📄 RESUME ANALYZER (UPLOAD + AI IMPROVEMENT)
 # ─────────────────────────────
-elif mode == "📄 Resume Builder":
+elif mode == "📄 Resume Analyzer":
 
-    st.title("📄 ATS Resume Analyzer")
+    st.title("📄 AI Resume Analyzer + Optimizer")
 
-    uploaded_file = st.file_uploader("Upload Resume PDF (max 5MB)", type=["pdf"])
+    uploaded = st.file_uploader("Upload Resume (PDF, max 5MB)", type=["pdf"])
     job_desc = st.text_area("Paste Job Description")
 
-    def extract_text(file):
+    def extract_pdf(file):
         reader = PyPDF2.PdfReader(file)
         text = ""
         for page in reader.pages:
             text += page.extract_text() or ""
         return text
 
-    def score(resume, job):
-        tfidf = TfidfVectorizer()
-        vectors = tfidf.fit_transform([resume, job])
-        return round(cosine_similarity(vectors[0], vectors[1])[0][0] * 100, 2)
+    if uploaded:
 
-    if uploaded_file:
-
-        if uploaded_file.size > 5 * 1024 * 1024:
-            st.error("Max 5MB allowed")
+        if uploaded.size > 5 * 1024 * 1024:
+            st.error("File exceeds 5MB limit")
         else:
+            resume_text = extract_pdf(uploaded)
 
-            resume_text = extract_text(uploaded_file)
+            st.success("Resume Uploaded")
 
             if st.button("Analyze Resume"):
 
-                if len(job_desc) < 10:
-                    st.error("Paste job description")
-                else:
+                common_words = set(resume_text.lower().split()) & set(job_desc.lower().split())
 
-                    ats = score(resume_text, job_desc)
+                score = len(common_words) * 2
 
-                    st.success(f"ATS Score: {ats}/100")
+                st.success(f"ATS Score: {min(score, 100)}/100")
 
-                    if ats < 50:
-                        st.warning("Low match → Improve keywords")
-                    elif ats < 75:
-                        st.info("Good match → Improve projects")
-                    else:
-                        st.success("Strong resume")
+                st.info("✔ Missing keywords will reduce selection chances")
+
+                st.subheader("🚀 Improved ATS Resume")
+
+                improved = f"""
+ATS OPTIMIZED RESUME
+
+Key Skills Matched:
+{', '.join(list(common_words))}
+
+Recommendation:
+- Add missing keywords from job description
+- Add measurable achievements
+- Add tools like Python, SQL, Power BI, ML
+
+Original Resume:
+{resume_text[:1000]}
+"""
+
+                st.text_area("Improved Resume", improved, height=400)
 
 # ─────────────────────────────
 # 🌐 PORTFOLIO BUILDER
 # ─────────────────────────────
 elif mode == "🌐 Portfolio Builder":
 
-    st.title("🌐 Portfolio Builder")
+    st.title("🌐 Portfolio Generator")
 
     name = st.text_input("Name")
+    about = st.text_area("About")
     skills = st.text_area("Skills")
     projects = st.text_area("Projects")
+    github = st.text_input("GitHub")
+    linkedin = st.text_input("LinkedIn")
 
     if st.button("Generate Portfolio"):
 
-        portfolio = f"""
-HOME
-{name}
+        html = f"""
+        <html>
+        <body>
+        <h1>{name}</h1>
 
-ABOUT
-AI/ML Enthusiast
+        <h2>About</h2>
+        <p>{about}</p>
 
-SKILLS
-{skills}
+        <h2>Skills</h2>
+        <p>{skills}</p>
 
-PROJECTS
-{projects}
+        <h2>Projects</h2>
+        <p>{projects}</p>
 
-CONTACT
-Available for AI/ML roles
-"""
+        <h2>Links</h2>
+        <p>{github}</p>
+        <p>{linkedin}</p>
+        </body>
+        </html>
+        """
 
-        st.text_area("Portfolio", portfolio, height=400)
+        st.download_button("Download Portfolio", html, file_name="portfolio.html")
