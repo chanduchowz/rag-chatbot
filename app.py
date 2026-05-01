@@ -9,68 +9,51 @@ from langchain_core.runnables import RunnablePassthrough
 import os
 import random
 
-# ─────────────────────────────
-# ENV SETUP
-# ─────────────────────────────
 os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 load_dotenv()
 
-st.set_page_config(page_title="AI Tutor 🤖", page_icon="🧠", layout="wide")
+st.set_page_config(page_title="KronosAI Pro 🚀", page_icon="🧠", layout="wide")
 
 # ─────────────────────────────
 # SIDEBAR
 # ─────────────────────────────
 with st.sidebar:
-    st.image("https://em-content.zobj.net/source/twitter/376/robot_1f916.png", width=80)
-    st.title("🧠 AI Tutor")
+    st.title("⚡ KronosAI PRO")
+    st.markdown("AI Tutor + Job Engine + Interview Trainer 🚀")
 
-    st.markdown("---")
-    mode = st.radio("Choose Mode:", ["💬 Chat & Learn", "🎯 Quiz Me!", "💡 Daily AI Fact"])
+    mode = st.radio(
+        "Select Mode",
+        ["💬 AI Tutor", "💼 Job Board", "🎤 Mock Interview", "📄 Resume Builder"]
+    )
 
-    st.markdown("---")
-    st.markdown("**Topics I cover:**")
-    st.markdown("✅ AI / ML / DL")
-    st.markdown("✅ Gen AI & LLMs")
-    st.markdown("✅ Python & Tools")
-    st.markdown("✅ Career Advice")
-
-    st.markdown("---")
-
-    if st.button("🗑️ Clear Chat"):
+    if st.button("Reset Chat"):
         st.session_state.messages = []
         st.rerun()
 
-    st.markdown("---")
-    st.markdown("🔥 Keep learning, keep growing!")
+# ─────────────────────────────
+# STRICT AI PROMPT (NO CONFUSION)
+# ─────────────────────────────
+def prompt_engine():
+    return ChatPromptTemplate.from_template("""
+You are KronosAI Pro 🤖.
+
+RULES:
+- Be precise and factual
+- Do NOT mix concepts (RAG ≠ AI general explanation)
+- If unknown, say "Not enough data"
+- Use context only when relevant
+
+Context:
+{context}
+
+Question:
+{question}
+
+Answer:
+""")
 
 # ─────────────────────────────
-# DATA
-# ─────────────────────────────
-facts = [
-    "🤖 AI started in 1956 at Dartmouth Conference!",
-    "🧠 GPT models predict next words using deep learning.",
-    "📊 Netflix uses ML for recommendations.",
-    "🚗 Tesla uses AI for self-driving.",
-    "💡 ELIZA was first chatbot in 1966.",
-]
-
-quizzes = [
-    {
-        "q": "What does ML stand for?",
-        "options": ["Machine Logic", "Machine Learning", "Meta Learning", "Model Learning"],
-        "answer": "Machine Learning",
-        "explanation": "ML = Machine Learning 🎯"
-    },
-    {
-        "q": "What does LLM stand for?",
-        "options": ["Large Language Model", "Long Logic Machine", "Linear Learning Model", "Language Logic Machine"],
-        "answer": "Large Language Model",
-        "explanation": "LLM = Large Language Model 🚀"
-    }
-]
-
-# ─────────────────────────────
-# LLM + RAG CHAIN
+# MODEL
 # ─────────────────────────────
 @st.cache_resource
 def load_chain():
@@ -87,105 +70,141 @@ def load_chain():
 
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
-    # ✅ STREAMLIT CLOUD SAFE SECRET HANDLING
     llm = ChatGroq(
         model="llama-3.3-70b-versatile",
         api_key=st.secrets["GROQ_API_KEY"]
     )
 
-    prompt = ChatPromptTemplate.from_template("""
-You are an expert AI tutor 🤖
-
-Rules:
-- Explain simply
-- Use real-world examples
-- Use emojis
-- Be motivating and friendly
-
-Context:
-{context}
-
-Question:
-{question}
-
-Answer:
-""")
-
     def format_docs(docs):
-        return "\n\n".join(doc.page_content for doc in docs)
+        return "\n\n".join(d.page_content for d in docs)
 
-    chain = (
+    return (
         {
             "context": retriever | format_docs,
             "question": RunnablePassthrough()
         }
-        | prompt
+        | prompt_engine()
         | llm
         | StrOutputParser()
     )
 
-    return chain
-
 chain = load_chain()
 
 # ─────────────────────────────
-# CHAT MODE
+# AI TUTOR
 # ─────────────────────────────
-if mode == "💬 Chat & Learn":
+if mode == "💬 AI Tutor":
 
-    st.title("💬 Chat & Learn")
-    st.caption("Ask anything about AI, ML, Python, GenAI 🚀")
+    st.title("🧠 KronosAI Tutor")
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    for m in st.session_state.messages:
+        with st.chat_message(m["role"]):
+            st.markdown(m["content"])
 
-    user_input = st.chat_input("Type your question...")
+    q = st.chat_input("Ask AI / RAG / GenAI / ML / Career...")
 
-    if user_input:
-
-        st.session_state.messages.append({"role": "user", "content": user_input})
-
-        with st.chat_message("user"):
-            st.markdown(user_input)
+    if q:
+        st.session_state.messages.append({"role": "user", "content": q})
 
         with st.chat_message("assistant"):
-            with st.spinner("Thinking... 🤔"):
-                response = chain.invoke(user_input)
-                st.markdown(response)
+            with st.spinner("Thinking..."):
+                ans = chain.invoke(q)
+                st.markdown(ans)
 
-        st.session_state.messages.append(
-            {"role": "assistant", "content": response}
-        )
+        st.session_state.messages.append({"role": "assistant", "content": ans})
 
 # ─────────────────────────────
-# QUIZ MODE
+# JOB BOARD (FRESHERS + EXP)
 # ─────────────────────────────
-elif mode == "🎯 Quiz Me!":
+elif mode == "💼 Job Board":
 
-    st.title("🎯 Quiz Time!")
+    st.title("💼 AI Job Engine")
 
-    q = random.choice(quizzes)
+    level = st.selectbox("Select Experience Level", ["Fresher", "1-3 Years", "3+ Years"])
 
-    st.subheader(q["q"])
-    answer = st.radio("Choose answer:", q["options"])
+    jobs = {
+        "Fresher": [
+            "Data Analyst Intern - Python, SQL",
+            "AI/ML Intern - Basic ML knowledge",
+            "Business Analyst Trainee",
+            "Python Developer Fresher"
+        ],
+        "1-3 Years": [
+            "Data Analyst - Power BI, SQL",
+            "ML Engineer - Scikit-learn, NLP",
+            "Backend Developer - Python FastAPI"
+        ],
+        "3+ Years": [
+            "Senior Data Scientist",
+            "AI Engineer - LLM / RAG systems",
+            "Data Engineering Lead - Azure / AWS"
+        ]
+    }
 
-    if st.button("Submit"):
-        if answer == q["answer"]:
-            st.success("✅ Correct!")
+    st.subheader("🔥 Recommended Jobs")
+
+    for j in jobs[level]:
+        st.success(j)
+
+    st.info("💡 Tip: Apply daily 10–15 jobs + build 2 strong projects")
+
+# ─────────────────────────────
+# MOCK INTERVIEW
+# ─────────────────────────────
+elif mode == "🎤 Mock Interview":
+
+    st.title("🎤 AI Interview Trainer")
+
+    questions = [
+        "Explain RAG in AI",
+        "What is overfitting?",
+        "Explain difference between AI and ML",
+        "What is a vector database?",
+        "Explain your final project"
+    ]
+
+    q = random.choice(questions)
+
+    st.subheader("Question:")
+    st.warning(q)
+
+    ans = st.text_area("Your Answer:")
+
+    if st.button("Evaluate"):
+
+        if len(ans) < 20:
+            st.error("❌ Answer too short")
         else:
-            st.error("❌ Wrong!")
-
-        st.info(q["explanation"])
+            st.success("✅ Good structure")
+            st.info("💡 Improve: Add examples + technical depth + clarity")
 
 # ─────────────────────────────
-# FACT MODE
+# RESUME BUILDER
 # ─────────────────────────────
-elif mode == "💡 Daily AI Fact":
+elif mode == "📄 Resume Builder":
 
-    st.title("💡 AI Fact")
+    st.title("📄 Resume Generator")
 
-    st.success(random.choice(facts))
+    name = st.text_input("Your Name")
+    skills = st.text_area("Skills (comma separated)")
+    projects = st.text_area("Projects")
+
+    if st.button("Generate Resume"):
+
+        resume = f"""
+NAME: {name}
+
+SKILLS:
+{skills}
+
+PROJECTS:
+{projects}
+
+OBJECTIVE:
+Seeking a role in Data Science / AI / Analytics to apply skills in real-world problems.
+"""
+
+        st.text_area("Your Resume", resume, height=300)     
