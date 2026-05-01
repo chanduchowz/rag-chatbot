@@ -12,115 +12,191 @@ with st.sidebar:
     mode = st.radio(
         "Choose Mode",
         [
-            "💬 AI Tutor",
-            "💼 Job Engine",
-            "🎯 AI Quiz Game",
-            "📄 Resume Builder",
-            "🌐 Portfolio Builder"
+            "🧠 AI Tutor",
+            "💼 Jobs",
+            "🎯 Quiz",
         ]
     )
 
 # ─────────────────────────────
-# AI DOMAIN KNOWLEDGE ENGINE
+# 🧠 FULL AI CURRICULUM ENGINE (YOUR MODULES)
 # ─────────────────────────────
-AI_KNOWLEDGE = {
-    "ai": "Artificial Intelligence is the simulation of human intelligence in machines.",
-    "ml": "Machine Learning is AI that learns patterns from data.",
-    "dl": "Deep Learning uses neural networks with many layers.",
-    "genai": "Generative AI creates text, images, code using models like GPT.",
-    "llm": "Large Language Models are transformer-based models trained on massive text.",
-    "rag": "Retrieval Augmented Generation combines search + LLM generation.",
-    "agent": "AI Agents can plan, think, and execute multi-step tasks.",
-    "transformer": "Transformer is architecture behind GPT models."
+AI_SYLLABUS = {
+    "python": """
+MODULE 1: Python for AI
+- Syntax, Variables, Data Types
+- Loops & Functions
+- File Handling, JSON, APIs
+- pip & Virtual Environments
+- Jupyter & VS Code
+Example: Python is used in ML models like recommendation systems.
+""",
+
+    "ai models": """
+MODULE 2: AI Foundations
+- AI vs ML vs DL vs NLP vs CV
+- Transformers overview
+- Pretrained vs Fine-tuned models
+- Industry use cases (Netflix, Tesla, Google)
+""",
+
+    "prompt": """
+MODULE 3: Prompt Engineering
+- System / User / Assistant roles
+- Zero-shot, Few-shot prompting
+- Chain-of-Thought
+- JSON structured prompts
+Example: ChatGPT prompt design
+""",
+
+    "llm": """
+MODULE 5: Large Language Models
+- GPT, Claude, LLaMA, Mistral
+- Training vs Inference
+- Hallucination & Bias
+- Limitations & use cases
+""",
+
+    "rag": """
+MODULE 9: RAG Systems
+- Retrieval Augmented Generation
+- Embeddings + Vector DB
+- PDF Q&A systems
+Example: ChatGPT + your documents
+""",
+
+    "langchain": """
+MODULE 10: LangChain & Agents
+- Chains, Tools, Memory
+- Multi-agent systems
+- Workflow automation
+Example: AI chatbot with tools
+""",
+
+    "tools": """
+MODULE 11: AI Tools
+- ChatGPT, Claude, Gemini
+- Cursor, Copilot, Replit AI
+- n8n, Zapier, Make.com
+- Midjourney, DALL·E, Runway
+""",
+
+    "agents": """
+MODULE 16: Agentic AI
+- AI agents that plan + execute tasks
+- Multi-agent systems
+- Research automation
+Example: AutoGPT style systems
+"""
 }
 
 # ─────────────────────────────
-# 💬 AI TUTOR (ACCURATE + MULTI DOMAIN)
+# 🧠 AI TUTOR (SMART ENGINE)
 # ─────────────────────────────
-if mode == "💬 AI Tutor":
+if mode == "🧠 AI Tutor":
 
-    st.title("💬 KronosAI Tutor")
+    st.title("🧠 KronosAI Tutor (Full AI Syllabus)")
 
-    q = st.text_input("Ask anything (AI / ML / DL / GenAI / Careers)")
+    q = st.text_input("Ask anything (Python / AI / ML / GenAI / Tools)")
 
     if q:
 
-        key = None
-        for k in AI_KNOWLEDGE:
+        found = False
+
+        for k, v in AI_SYLLABUS.items():
             if k in q.lower():
-                key = k
+                st.success(v)
+
+                st.info("""
+📌 Real Example:
+Netflix → ML recommendation system  
+ChatGPT → LLM + RAG system  
+Tesla → AI + Computer Vision  
+
+📌 Coding Example:
+Python + scikit-learn + transformers
+""")
+                found = True
                 break
 
-        if key:
-            st.success(AI_KNOWLEDGE[key])
-        else:
-            st.info("""
-I can explain:
-✔ AI / ML / DL  
-✔ GenAI / LLMs / RAG / Agents  
-✔ Career guidance  
-✔ Projects / interviews  
+        if not found:
+            st.warning("""
+I cover full AI stack:
 
-Please ask more specific question.
+✔ Python for AI  
+✔ Machine Learning  
+✔ Deep Learning  
+✔ GenAI / LLMs  
+✔ Prompt Engineering  
+✔ RAG Systems  
+✔ LangChain / Agents  
+✔ AI Tools (Copilot, ChatGPT, n8n)  
+
+👉 Please ask more specific topic
 """)
 
 # ─────────────────────────────
-# 💼 JOB ENGINE (ALL ROLES + EXPERIENCE)
+# 💼 JOB ENGINE (ALL COMPANIES + ROLES)
 # ─────────────────────────────
-elif mode == "💼 Job Engine":
+elif mode == "💼 Jobs":
 
-    st.title("💼 Smart Job Engine")
+    st.title("💼 AI Job Engine")
 
     role = st.selectbox("Role", [
         "Data Analyst",
-        "Software Developer",
         "AI Engineer",
         "ML Engineer",
         "GenAI Engineer",
+        "Python Developer",
         "Business Analyst"
     ])
 
     exp = st.selectbox("Experience", ["Fresher", "1-3 Years", "3+ Years"])
 
-    jobs = {
+    JOBS = {
         "Fresher": [
             "TCS - Graduate Trainee",
-            "Infosys - Analyst Trainee",
-            "Wipro - Developer Intern",
-            "Capgemini - Entry Role"
+            "Infosys - Analyst",
+            "Wipro - Python Developer",
+            "Capgemini - Data Analyst"
         ],
         "1-3 Years": [
-            "Accenture - Analyst",
-            "Amazon - SDE",
-            "IBM - AI Engineer",
+            "Accenture - AI Engineer",
+            "Amazon - Data Analyst",
+            "IBM - ML Engineer",
             "Cognizant - Developer"
         ],
         "3+ Years": [
-            "Google - Senior Engineer",
+            "Google - Senior AI Engineer",
             "Microsoft - Data Scientist",
             "Meta - ML Engineer",
-            "Startup - AI Lead"
+            "Startup - GenAI Engineer"
         ]
     }
 
-    st.subheader(f"🔥 Jobs for {role} ({exp})")
+    st.subheader("🔥 Recommended Jobs")
 
-    for j in jobs[exp]:
+    for j in JOBS[exp]:
         st.success(j)
 
+    st.info("💡 Apply daily 10–20 jobs + build AI projects + GitHub profile")
+
 # ─────────────────────────────
-# 🎯 AI QUIZ GAME (LEARNING STYLE)
+# 🎯 QUIZ ENGINE (AI LEARNING GAME)
 # ─────────────────────────────
-elif mode == "🎯 AI Quiz Game":
+elif mode == "🎯 Quiz":
 
     st.title("🎯 KronosAI Learning Game")
 
     quizzes = [
-        ("What is AI?", "Simulation of human intelligence"),
+        ("What is AI?", "Machines simulating human intelligence"),
         ("What is ML?", "Learning from data"),
         ("What is DL?", "Neural networks with layers"),
-        ("What is GenAI?", "Creates content like text/images"),
+        ("What is GenAI?", "Creates text/images/code"),
+        ("What is RAG?", "LLM + retrieval system"),
         ("What is LLM?", "Large language model like GPT"),
+        ("What is Python used for AI?", "Building ML models"),
+        ("What is overfitting?", "Model memorizes training data")
     ]
 
     q, ans = random.choice(quizzes)
@@ -136,110 +212,4 @@ elif mode == "🎯 AI Quiz Game":
         else:
             st.error(f"Wrong ❌ Answer: {ans}")
 
-# ─────────────────────────────
-# 📄 RESUME BUILDER (PRO FORMAT ORDER)
-# ─────────────────────────────
-elif mode == "📄 Resume Builder":
-
-    st.title("📄 ATS Resume Builder")
-
-    name = st.text_input("Name")
-    email = st.text_input("Email")
-    phone = st.text_input("Phone")
-    summary = st.text_area("Professional Summary")
-
-    education = st.text_area("Education")
-    skills = st.text_area("Skills")
-    projects = st.text_area("Projects")
-    internship = st.text_area("Internships / Experience")
-    certs = st.text_area("Certifications")
-    achievements = st.text_area("Achievements")
-    tools = st.text_area("Tools & Technologies")
-    links = st.text_area("GitHub / Portfolio Links")
-
-    resume = f"""
-========================
-RESUME
-========================
-
-HEADER
-Name: {name}
-Email: {email}
-Phone: {phone}
-
-PROFESSIONAL SUMMARY
-{summary}
-
-EDUCATION
-{education}
-
-SKILLS
-{skills}
-
-PROJECTS
-{projects}
-
-INTERNSHIPS / EXPERIENCE
-{internship}
-
-CERTIFICATIONS
-{certs}
-
-ACHIEVEMENTS
-{achievements}
-
-TOOLS & TECHNOLOGIES
-{tools}
-
-LINKS
-{links}
-"""
-
-    if st.button("Generate Resume"):
-        st.text_area("ATS Resume", resume, height=500)
-
-# ─────────────────────────────
-# 🌐 PORTFOLIO BUILDER (PRO ORDER STRUCTURE)
-# ─────────────────────────────
-elif mode == "🌐 Portfolio Builder":
-
-    st.title("🌐 AI Portfolio Builder")
-
-    name = st.text_input("Name")
-
-    about = st.text_area("About Me")
-    skills = st.text_area("Skills")
-    projects = st.text_area("Projects (MOST IMPORTANT)")
-    certs = st.text_area("Certifications")
-    exp = st.text_area("Experience")
-    resume_link = st.text_input("Resume Download Link")
-    contact = st.text_input("Contact Info")
-
-    portfolio = f"""
-HOME / HERO
-{name} - AI/ML Enthusiast
-
-ABOUT ME
-{about}
-
-SKILLS
-{skills}
-
-PROJECTS
-{projects}
-
-CERTIFICATIONS
-{certs}
-
-EXPERIENCE
-{exp}
-
-RESUME DOWNLOAD
-{resume_link}
-
-CONTACT
-{contact}
-"""
-
-    if st.button("Generate Portfolio"):
-        st.text_area("Portfolio Structure", portfolio, height=500)
+        st.info("💡 Keep learning modules daily to master AI")
