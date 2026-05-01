@@ -8,159 +8,184 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 import os
 import random
-import os
-os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 
+# ─────────────────────────────
+# ENV SETUP
+# ─────────────────────────────
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
 load_dotenv()
 
 st.set_page_config(page_title="AI Tutor 🤖", page_icon="🧠", layout="wide")
 
-# Sidebar
+# ─────────────────────────────
+# SIDEBAR
+# ─────────────────────────────
 with st.sidebar:
     st.image("https://em-content.zobj.net/source/twitter/376/robot_1f916.png", width=80)
     st.title("🧠 AI Tutor")
+
     st.markdown("---")
     mode = st.radio("Choose Mode:", ["💬 Chat & Learn", "🎯 Quiz Me!", "💡 Daily AI Fact"])
+
     st.markdown("---")
     st.markdown("**Topics I cover:**")
-    st.markdown("✅ Artificial Intelligence")
-    st.markdown("✅ Machine Learning")
-    st.markdown("✅ Deep Learning")
+    st.markdown("✅ AI / ML / DL")
     st.markdown("✅ Gen AI & LLMs")
     st.markdown("✅ Python & Tools")
     st.markdown("✅ Career Advice")
-    st.markdown("✅ Any topic!")
+
     st.markdown("---")
+
     if st.button("🗑️ Clear Chat"):
         st.session_state.messages = []
         st.rerun()
-    st.markdown("---")
-    st.markdown("💪 **Keep learning, keep growing!**")
-    st.markdown("🔥 You're doing amazing!")
 
-# Daily facts
+    st.markdown("---")
+    st.markdown("🔥 Keep learning, keep growing!")
+
+# ─────────────────────────────
+# DATA
+# ─────────────────────────────
 facts = [
-    "🤖 The term 'Artificial Intelligence' was coined by John McCarthy in 1956!",
-    "🧠 GPT-4 has around 1.76 trillion parameters!",
-    "📊 Machine Learning is used by Netflix to save $1 billion/year in customer retention!",
-    "🚗 Tesla's Autopilot uses Deep Learning to process 1.4 billion miles of real-world driving data!",
-    "💡 The first chatbot, ELIZA, was created in 1966 at MIT!",
-    "🎮 AlphaGo beat the world champion Go player in 2016 using Deep Reinforcement Learning!",
-    "📱 Your phone's face recognition uses a Convolutional Neural Network (CNN)!",
-    "🌍 India is the 3rd largest AI talent pool in the world!",
-    "💼 AI Engineer is the #1 fastest growing job in Hyderabad in 2026!",
-    "🔥 LangChain was created in 2022 and already has 500K+ GitHub stars!",
+    "🤖 AI started in 1956 at Dartmouth Conference!",
+    "🧠 GPT models predict next words using deep learning.",
+    "📊 Netflix uses ML for recommendations.",
+    "🚗 Tesla uses AI for self-driving.",
+    "💡 ELIZA was first chatbot in 1966.",
 ]
 
 quizzes = [
     {
-        "q": "What does 'ML' stand for?",
-        "options": ["Machine Logic", "Machine Learning", "Model Learning", "Meta Learning"],
+        "q": "What does ML stand for?",
+        "options": ["Machine Logic", "Machine Learning", "Meta Learning", "Model Learning"],
         "answer": "Machine Learning",
-        "explanation": "ML stands for Machine Learning — teaching machines to learn from data!"
-    },
-    {
-        "q": "Which algorithm is used for classification problems?",
-        "options": ["Linear Regression", "K-Means", "Random Forest", "PCA"],
-        "answer": "Random Forest",
-        "explanation": "Random Forest is an ensemble method great for classification!"
-    },
-    {
-        "q": "What is a Neural Network inspired by?",
-        "options": ["Computer circuits", "Human brain", "Decision trees", "Statistics"],
-        "answer": "Human brain",
-        "explanation": "Neural Networks are inspired by neurons in the human brain!"
-    },
-    {
-        "q": "What does RAG stand for in Gen AI?",
-        "options": ["Random Activation Graph", "Retrieval Augmented Generation", "Recurrent AI Graph", "Real AI Generation"],
-        "answer": "Retrieval Augmented Generation",
-        "explanation": "RAG = Retrieval Augmented Generation — combining search with LLMs!"
-    },
-    {
-        "q": "Which company created ChatGPT?",
-        "options": ["Google", "Meta", "OpenAI", "Microsoft"],
-        "answer": "OpenAI",
-        "explanation": "ChatGPT was created by OpenAI, founded by Sam Altman!"
-    },
-    {
-        "q": "What is overfitting in ML?",
-        "options": ["Model too simple", "Model memorizes training data", "Model trains too fast", "Model uses too little data"],
-        "answer": "Model memorizes training data",
-        "explanation": "Overfitting = model memorizes training data and fails on new data!"
-    },
-    {
-        "q": "What is a Transformer in AI?",
-        "options": ["A robot", "A power device", "An attention-based neural network", "A data cleaner"],
-        "answer": "An attention-based neural network",
-        "explanation": "Transformers use attention mechanisms — the backbone of all LLMs like GPT!"
+        "explanation": "ML = Machine Learning 🎯"
     },
     {
         "q": "What does LLM stand for?",
-        "options": ["Large Logic Model", "Long Language Model", "Large Language Model", "Linear Learning Model"],
+        "options": ["Large Language Model", "Long Logic Machine", "Linear Learning Model", "Language Logic Machine"],
         "answer": "Large Language Model",
-        "explanation": "LLM = Large Language Model — AI trained on massive text data!"
-    },
+        "explanation": "LLM = Large Language Model 🚀"
+    }
 ]
 
+# ─────────────────────────────
+# LLM + RAG CHAIN
+# ─────────────────────────────
 @st.cache_resource
 def load_chain():
+
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
+
     vectorstore = FAISS.load_local(
         "faiss_index",
         embeddings,
         allow_dangerous_deserialization=True
     )
+
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+
+    # ✅ STREAMLIT CLOUD SAFE SECRET HANDLING
     llm = ChatGroq(
         model="llama-3.3-70b-versatile",
-        api_key=os.getenv("GROQ_API_KEY")
+        api_key=st.secrets["GROQ_API_KEY"]
     )
+
     prompt = ChatPromptTemplate.from_template("""
-You are an enthusiastic, world-class AI/ML/Deep Learning/Gen AI tutor and mentor!
-Your goal is to make learning fun, easy and exciting for everyone.
+You are an expert AI tutor 🤖
 
 Rules:
-- Use the context below if relevant, otherwise use your vast knowledge
-- Always explain with real-world examples (Netflix, Google, Tesla, Instagram etc.)
-- Use emojis to make answers engaging 🎯
-- Break complex topics into simple steps
-- Add fun facts where relevant
-- Be encouraging and positive — celebrate the user's curiosity!
-- For coding questions, provide working code with explanations
-- For career questions, give practical Hyderabad job market advice
-- End answers with a motivational tip or a follow-up question to keep them engaged
+- Explain simply
+- Use real-world examples
+- Use emojis
+- Be motivating and friendly
 
-Context: {context}
-Question: {question}
+Context:
+{context}
+
+Question:
+{question}
+
 Answer:
 """)
+
     def format_docs(docs):
         return "\n\n".join(doc.page_content for doc in docs)
+
     chain = (
-        {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        {
+            "context": retriever | format_docs,
+            "question": RunnablePassthrough()
+        }
         | prompt
         | llm
         | StrOutputParser()
     )
+
     return chain
 
 chain = load_chain()
 
-# ─── CHAT MODE ───
+# ─────────────────────────────
+# CHAT MODE
+# ─────────────────────────────
 if mode == "💬 Chat & Learn":
-    st.title("💬 Chat & Learn")
-    st.caption("Ask me anything — AI, ML, DL, Gen AI, Python, career advice and more!")
 
-    motivational = [
-        "🔥 Every expert was once a beginner. Keep going!",
-        "💡 Curiosity is the engine of learning!",
-        "🚀 You're one question away from your next breakthrough!",
-        "🧠 Your brain grows every time you learn something new!",
-    ]
-    st.info(random.choice(motivational))
+    st.title("💬 Chat & Learn")
+    st.caption("Ask anything about AI, ML, Python, GenAI 🚀")
 
     if "messages" not in st.session_state:
-        st
+        st.session_state.messages = []
+
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    user_input = st.chat_input("Type your question...")
+
+    if user_input:
+
+        st.session_state.messages.append({"role": "user", "content": user_input})
+
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking... 🤔"):
+                response = chain.invoke(user_input)
+                st.markdown(response)
+
+        st.session_state.messages.append(
+            {"role": "assistant", "content": response}
+        )
+
+# ─────────────────────────────
+# QUIZ MODE
+# ─────────────────────────────
+elif mode == "🎯 Quiz Me!":
+
+    st.title("🎯 Quiz Time!")
+
+    q = random.choice(quizzes)
+
+    st.subheader(q["q"])
+    answer = st.radio("Choose answer:", q["options"])
+
+    if st.button("Submit"):
+        if answer == q["answer"]:
+            st.success("✅ Correct!")
+        else:
+            st.error("❌ Wrong!")
+
+        st.info(q["explanation"])
+
+# ─────────────────────────────
+# FACT MODE
+# ─────────────────────────────
+elif mode == "💡 Daily AI Fact":
+
+    st.title("💡 AI Fact")
+
+    st.success(random.choice(facts))
