@@ -16,238 +16,23 @@ with st.sidebar:
             "🧠 AI Tutor",
             "💼 Jobs",
             "🎯 Quiz Game",
-            "📄 Resume Builder",
-            "📊 Resume Analyzer",
+            "📄 Resume Builder",     # NEW
+            "📊 Resume Analyzer",    # NEW
             "🌐 Portfolio Builder"
         ]
     )
 
 # ─────────────────────────────
-# AI TUTOR KNOWLEDGE ENGINE (UPGRADED)
+# AI KNOWLEDGE ENGINE
 # ─────────────────────────────
-def ai_tutor_response(question):
-    q = question.lower()
-
-    responses = {
-        "ai": """
-🤖 **Artificial Intelligence (AI)**
-
-AI means machines performing tasks that usually need human intelligence.
-
-### Real World Examples:
-✔ Siri / Alexa voice assistants  
-✔ Self-driving cars  
-✔ Netflix recommendations  
-✔ Face unlock in phones  
-
-### Easy Understanding:
-AI is like teaching a machine to think and decide.
-
-### Career Uses:
-AI Engineer, Robotics, Automation, Chatbot Developer
-""",
-
-        "ml": """
-📘 **Machine Learning (ML)**
-
-ML is a part of AI where machines learn patterns from data.
-
-### Real World Examples:
-✔ Spam email detection  
-✔ Product recommendations  
-✔ Fraud detection in banking  
-✔ YouTube suggested videos  
-
-### Easy Understanding:
-Instead of coding every rule, we give data and machine learns itself.
-""",
-
-        "deep learning": """
-🧠 **Deep Learning (DL)**
-
-Deep Learning uses neural networks similar to the human brain.
-
-### Real World Examples:
-✔ Face recognition  
-✔ Voice assistants  
-✔ Self-driving cars  
-✔ Medical image diagnosis  
-
-### Easy Understanding:
-DL is advanced ML used for images, audio, videos.
-""",
-
-        "genai": """
-✨ **Generative AI**
-
-Generative AI creates new content like text, images, videos, code.
-
-### Real World Examples:
-✔ ChatGPT writes answers  
-✔ Midjourney creates images  
-✔ AI music generation  
-✔ AI coding assistants  
-
-### Easy Understanding:
-Instead of only analyzing data, GenAI creates something new.
-""",
-
-        "llm": """
-📚 **Large Language Model (LLM)**
-
-LLMs are AI models trained on huge text data.
-
-### Real World Examples:
-✔ ChatGPT  
-✔ Gemini  
-✔ Claude  
-✔ Copilot  
-
-### Easy Understanding:
-LLM understands language and gives smart human-like responses.
-""",
-
-        "rag": """
-🔎 **RAG (Retrieval Augmented Generation)**
-
-RAG combines Search + AI Answering.
-
-### Real World Example:
-Upload PDFs and ask questions from documents.
-
-### Easy Understanding:
-Instead of only memory, AI searches data first then answers.
-
-### Used In:
-✔ Company chatbots  
-✔ Resume analyzers  
-✔ Document assistants
-""",
-
-        "python": """
-🐍 **Python**
-
-Python is the most popular language for AI / Data Science.
-
-### Real World Uses:
-✔ AI development  
-✔ Web apps  
-✔ Automation  
-✔ Data analysis  
-✔ ML projects  
-
-### Why Python?
-✔ Easy syntax  
-✔ Huge libraries  
-✔ Fast development
-""",
-
-        "sql": """
-🗄 **SQL**
-
-SQL is used to manage databases.
-
-### Real World Uses:
-✔ Company customer data  
-✔ Sales reports  
-✔ Dashboards  
-✔ Data Analyst jobs  
-
-### Example:
-SELECT * FROM employees;
-""",
-
-        "power bi": """
-📊 **Power BI**
-
-Power BI is used to create dashboards and reports.
-
-### Real World Uses:
-✔ Sales Dashboard  
-✔ HR Dashboard  
-✔ Finance Reports  
-✔ KPI Monitoring
-""",
-
-        "chatgpt": """
-💬 **ChatGPT**
-
-ChatGPT is an AI chatbot built using Large Language Models.
-
-### Uses:
-✔ Learning concepts  
-✔ Coding help  
-✔ Resume writing  
-✔ Content creation  
-✔ Business ideas
-""",
-
-        "numpy": """
-🔢 **NumPy**
-
-NumPy is a Python library used for numerical computing.
-
-### Used In:
-✔ Arrays  
-✔ Matrix operations  
-✔ AI calculations
-""",
-
-        "pandas": """
-📈 **Pandas**
-
-Pandas is used for data cleaning and analysis.
-
-### Real World Uses:
-✔ Excel-like data handling  
-✔ Reports  
-✔ Analytics
-""",
-
-        "streamlit": """
-🌐 **Streamlit**
-
-Streamlit is used to build web apps using Python easily.
-
-### Examples:
-✔ AI apps  
-✔ Dashboard apps  
-✔ Resume tools  
-✔ Chatbots
-"""
-    }
-
-    # Find keyword match
-    for key in responses:
-        if key in q:
-            return responses[key]
-
-    # Generic intelligent fallback
-    return f"""
-🧠 **KronosAI Smart Tutor**
-
-You asked: **{question}**
-
-I understand you're asking something related to AI / Technology.
-
-### Simple Explanation:
-This topic is important in modern technology and used in real-world applications.
-
-### Examples:
-✔ Automation  
-✔ Chatbots  
-✔ Data Science  
-✔ Software Development  
-✔ Business Growth  
-
-### Tip:
-Try asking like:
-- What is Generative AI?
-- Explain Python with examples
-- Difference between AI and ML
-- How ChatGPT works
-- What is RAG?
-"""
+AI_KNOWLEDGE = {
+    "ai": "AI simulates human intelligence.",
+    "ml": "ML learns patterns from data.",
+    "dl": "DL uses neural networks.",
+    "genai": "Generative AI creates content.",
+    "llm": "Large Language Models like GPT.",
+    "rag": "Search + AI generation system."
+}
 
 # ─────────────────────────────
 # 🧠 AI TUTOR
@@ -255,13 +40,19 @@ Try asking like:
 if mode == "🧠 AI Tutor":
 
     st.title("🧠 KronosAI Tutor")
-    st.subheader("Ask Any Question About AI / ML / Python / Data Science / GenAI / Tools")
 
     q = st.text_input("Ask anything")
 
     if q:
-        answer = ai_tutor_response(q)
-        st.success(answer)
+        found = False
+        for k, v in AI_KNOWLEDGE.items():
+            if k in q.lower():
+                st.success(v)
+                found = True
+                break
+
+        if not found:
+            st.info("Ask AI / ML / DL / GenAI / RAG / LLM related questions")
 
 # ─────────────────────────────
 # 💼 JOB ENGINE
@@ -285,7 +76,7 @@ elif mode == "💼 Jobs":
         st.success(j)
 
 # ─────────────────────────────
-# 🎯 QUIZ GAME
+# 🎯 QUIZ GAME (ZIGZAG + NEXT FLOW)
 # ─────────────────────────────
 elif mode == "🎯 Quiz Game":
 
@@ -313,6 +104,7 @@ elif mode == "🎯 Quiz Game":
         questions.append(random.choice(questions))
 
     idx = st.session_state.q_index % len(questions)
+
     q, ans = questions[idx]
 
     st.subheader(q)
@@ -325,7 +117,9 @@ elif mode == "🎯 Quiz Game":
     selected = st.radio("Choose answer", options, key=str(idx))
 
     if not st.session_state.answered:
+
         if st.button("Submit"):
+
             st.session_state.answered = True
 
             if selected == ans:
@@ -337,22 +131,177 @@ elif mode == "🎯 Quiz Game":
             st.info(f"Score: {st.session_state.score}")
 
     if st.session_state.answered:
+
         if st.button("Next Question ➡"):
+
             st.session_state.q_index += 1
             st.session_state.answered = False
             st.rerun()
 
 # ─────────────────────────────
-# OTHER MODULES SAME AS YOUR CODE
+# 📄 RESUME BUILDER (STRUCTURED FORMAT)
 # ─────────────────────────────
 elif mode == "📄 Resume Builder":
-    st.title("📄 ATS Resume Builder")
-    st.info("Your existing code remains same.")
 
+    st.title("📄 ATS Resume Builder (Manual)")
+
+    st.subheader("🟢 Fill Details Carefully")
+
+    name = st.text_input("Full Name")
+    email = st.text_input("Email")
+    phone = st.text_input("Phone")
+    location = st.text_input("Location")
+
+    summary = st.text_area("Professional Summary")
+
+    education = st.text_area("Education (Degree, College, Year)")
+    skills = st.text_area("Skills (Python, SQL, ML, etc)")
+    projects = st.text_area("Projects (Explain briefly)")
+    experience = st.text_area("Internships / Experience")
+    certifications = st.text_area("Certifications")
+    achievements = st.text_area("Achievements / Awards")
+    tools = st.text_area("Tools & Technologies")
+    links = st.text_area("GitHub / Portfolio Links")
+
+    if st.button("Generate ATS Resume"):
+
+        resume = f"""
+========================
+        ATS RESUME
+========================
+
+👤 HEADER
+Name: {name}
+Email: {email}
+Phone: {phone}
+Location: {location}
+
+🎯 PROFESSIONAL SUMMARY
+{summary}
+
+🎓 EDUCATION
+{education}
+
+🛠 SKILLS
+{skills}
+
+📌 PROJECTS
+{projects}
+
+💼 EXPERIENCE
+{experience}
+
+📜 CERTIFICATIONS
+{certifications}
+
+🏆 ACHIEVEMENTS
+{achievements}
+
+🧰 TOOLS & TECHNOLOGIES
+{tools}
+
+🔗 LINKS
+{links}
+
+========================
+ATS KEYWORDS:
+Python | SQL | Machine Learning | Deep Learning | GenAI | Power BI | RAG | LLM
+========================
+"""
+
+        st.text_area("Generated Resume", resume, height=600)
+        st.success("ATS Resume Generated Successfully 🎉")
+
+# ─────────────────────────────
+# 📊 RESUME ANALYZER (UPLOAD + AI SCORE)
+# ─────────────────────────────
 elif mode == "📊 Resume Analyzer":
-    st.title("📊 Resume Analyzer")
-    st.info("Your existing code remains same.")
 
+    st.title("📊 Resume AI Analyzer")
+
+    uploaded = st.file_uploader("Upload Resume (PDF - Max 5MB)", type=["pdf"])
+    job_desc = st.text_area("Paste Job Description")
+
+    def extract_text(file):
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for p in reader.pages:
+            text += p.extract_text() or ""
+        return text
+
+    if uploaded:
+
+        if uploaded.size > 5 * 1024 * 1024:
+            st.error("File too large (Max 5MB)")
+        else:
+
+            resume_text = extract_text(uploaded)
+
+            if st.button("Analyze Resume"):
+
+                resume_words = set(resume_text.lower().split())
+                job_words = set(job_desc.lower().split())
+
+                match = resume_words & job_words
+                score = min(len(match) * 3, 100)
+
+                st.success(f"ATS Score: {score}/100")
+
+                st.subheader("Matched Keywords")
+                st.write(list(match))
+
+                st.subheader("Improvement Suggestions")
+                st.info("""
+✔ Add missing keywords from job description  
+✔ Use numbers (impact metrics)  
+✔ Improve project descriptions  
+✔ Add tools like Python, SQL, ML, GenAI  
+""")
+
+# ─────────────────────────────
+# 🌐 PORTFOLIO BUILDER
+# ─────────────────────────────
 elif mode == "🌐 Portfolio Builder":
+
     st.title("🌐 Portfolio Builder")
-    st.info("Your existing code remains same.")
+
+    name = st.text_input("Name")
+    about = st.text_area("About Me")
+    skills = st.text_area("Skills")
+    projects = st.text_area("Projects")
+    certs = st.text_area("Certifications")
+    exp = st.text_area("Experience")
+    resume_link = st.text_input("Resume Link")
+    contact = st.text_input("Contact Info")
+
+    if st.button("Generate Portfolio"):
+
+        html = f"""
+        <html>
+        <body>
+        <h1>{name}</h1>
+
+        <h2>About Me</h2>
+        <p>{about}</p>
+
+        <h2>Skills</h2>
+        <p>{skills}</p>
+
+        <h2>Projects</h2>
+        <p>{projects}</p>
+
+        <h2>Certifications</h2>
+        <p>{certs}</p>
+
+        <h2>Experience</h2>
+        <p>{exp}</p>
+
+        <h2>Resume</h2>
+        <p>{resume_link}</p>
+
+        <h2>Contact</h2>
+        <p>{contact}</p>
+        </body>
+        </html>
+        """
+load Portfolio", html, file_name="portfolio.html")
