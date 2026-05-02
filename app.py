@@ -304,4 +304,3 @@ elif mode == "🌐 Portfolio Builder":
         </body>
         </html>
         """
-load Portfolio", html, file_name="portfolio.html")
