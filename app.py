@@ -5,7 +5,7 @@ import PyPDF2
 st.set_page_config(page_title="KronosAI 🚀", page_icon="🧠", layout="wide")
 
 # ─────────────────────────────
-# SIDEBAR
+# SIDEBAR (AI TUTOR REMOVED)
 # ─────────────────────────────
 with st.sidebar:
     st.title("⚡ KronosAI")
@@ -13,70 +13,51 @@ with st.sidebar:
     mode = st.radio(
         "Choose Mode",
         [
-            "🧠 AI Tutor",
             "💼 Jobs",
             "🎯 Quiz Game",
-            "📄 Resume Builder",     # NEW
-            "📊 Resume Analyzer",    # NEW
+            "📄 Resume Builder",
+            "📊 Resume Analyzer",
             "🌐 Portfolio Builder"
         ]
     )
 
 # ─────────────────────────────
-# AI KNOWLEDGE ENGINE
-# ─────────────────────────────
-AI_KNOWLEDGE = {
-    "ai": "AI simulates human intelligence.",
-    "ml": "ML learns patterns from data.",
-    "dl": "DL uses neural networks.",
-    "genai": "Generative AI creates content.",
-    "llm": "Large Language Models like GPT.",
-    "rag": "Search + AI generation system."
-}
-
-# ─────────────────────────────
-# 🧠 AI TUTOR
-# ─────────────────────────────
-if mode == "🧠 AI Tutor":
-
-    st.title("🧠 KronosAI Tutor")
-
-    q = st.text_input("Ask anything")
-
-    if q:
-        found = False
-        for k, v in AI_KNOWLEDGE.items():
-            if k in q.lower():
-                st.success(v)
-                found = True
-                break
-
-        if not found:
-            st.info("Ask AI / ML / DL / GenAI / RAG / LLM related questions")
-
-# ─────────────────────────────
-# 💼 JOB ENGINE
+# 💼 JOB ENGINE (WITH APPLY LINKS)
 # ─────────────────────────────
 elif mode == "💼 Jobs":
 
-    st.title("💼 AI Job Engine")
+    st.title("💼 AI Job Engine - Apply Directly")
 
     role = st.selectbox("Role", ["AI Engineer", "ML Engineer", "Data Analyst", "Python Dev"])
     exp = st.selectbox("Experience", ["Fresher", "1-3 Years", "3+ Years"])
 
     jobs = {
-        "Fresher": ["TCS", "Infosys", "Wipro"],
-        "1-3 Years": ["Accenture", "Amazon", "IBM"],
-        "3+ Years": ["Google", "Microsoft", "Meta"]
+        "Fresher": [
+            ("TCS", "https://www.tcs.com/careers"),
+            ("Infosys", "https://www.infosys.com/careers"),
+            ("Wipro", "https://careers.wipro.com")
+        ],
+        "1-3 Years": [
+            ("Accenture", "https://www.accenture.com/in-en/careers"),
+            ("Amazon", "https://www.amazon.jobs"),
+            ("IBM", "https://www.ibm.com/employment")
+        ],
+        "3+ Years": [
+            ("Google", "https://careers.google.com"),
+            ("Microsoft", "https://careers.microsoft.com"),
+            ("Meta", "https://www.metacareers.com")
+        ]
     }
 
-    st.subheader("🔥 Jobs")
+    st.subheader("🔥 Click to Apply")
 
-    for j in jobs[exp]:
-        st.success(j)
+    for company, link in jobs[exp]:
+        st.markdown(f"### 🏢 {company}")
+        st.markdown(f"[👉 Apply Here]({link})")
+        st.write("---")
 
 # ─────────────────────────────
-# 🎯 QUIZ GAME (ZIGZAG + NEXT FLOW)
+# 🎯 QUIZ GAME
 # ─────────────────────────────
 elif mode == "🎯 Quiz Game":
 
@@ -104,7 +85,6 @@ elif mode == "🎯 Quiz Game":
         questions.append(random.choice(questions))
 
     idx = st.session_state.q_index % len(questions)
-
     q, ans = questions[idx]
 
     st.subheader(q)
@@ -139,13 +119,11 @@ elif mode == "🎯 Quiz Game":
             st.rerun()
 
 # ─────────────────────────────
-# 📄 RESUME BUILDER (STRUCTURED FORMAT)
+# 📄 RESUME BUILDER
 # ─────────────────────────────
 elif mode == "📄 Resume Builder":
 
     st.title("📄 ATS Resume Builder (Manual)")
-
-    st.subheader("🟢 Fill Details Carefully")
 
     name = st.text_input("Full Name")
     email = st.text_input("Email")
@@ -153,13 +131,12 @@ elif mode == "📄 Resume Builder":
     location = st.text_input("Location")
 
     summary = st.text_area("Professional Summary")
-
-    education = st.text_area("Education (Degree, College, Year)")
-    skills = st.text_area("Skills (Python, SQL, ML, etc)")
-    projects = st.text_area("Projects (Explain briefly)")
-    experience = st.text_area("Internships / Experience")
+    education = st.text_area("Education")
+    skills = st.text_area("Skills")
+    projects = st.text_area("Projects")
+    experience = st.text_area("Experience")
     certifications = st.text_area("Certifications")
-    achievements = st.text_area("Achievements / Awards")
+    achievements = st.text_area("Achievements")
     tools = st.text_area("Tools & Technologies")
     links = st.text_area("GitHub / Portfolio Links")
 
@@ -170,56 +147,52 @@ elif mode == "📄 Resume Builder":
         ATS RESUME
 ========================
 
-👤 HEADER
 Name: {name}
 Email: {email}
 Phone: {phone}
 Location: {location}
 
-🎯 PROFESSIONAL SUMMARY
+SUMMARY
 {summary}
 
-🎓 EDUCATION
+EDUCATION
 {education}
 
-🛠 SKILLS
+SKILLS
 {skills}
 
-📌 PROJECTS
+PROJECTS
 {projects}
 
-💼 EXPERIENCE
+EXPERIENCE
 {experience}
 
-📜 CERTIFICATIONS
+CERTIFICATIONS
 {certifications}
 
-🏆 ACHIEVEMENTS
+ACHIEVEMENTS
 {achievements}
 
-🧰 TOOLS & TECHNOLOGIES
+TOOLS
 {tools}
 
-🔗 LINKS
+LINKS
 {links}
 
-========================
-ATS KEYWORDS:
-Python | SQL | Machine Learning | Deep Learning | GenAI | Power BI | RAG | LLM
 ========================
 """
 
         st.text_area("Generated Resume", resume, height=600)
-        st.success("ATS Resume Generated Successfully 🎉")
+        st.success("Resume Generated 🎉")
 
 # ─────────────────────────────
-# 📊 RESUME ANALYZER (UPLOAD + AI SCORE)
+# 📊 RESUME ANALYZER
 # ─────────────────────────────
 elif mode == "📊 Resume Analyzer":
 
-    st.title("📊 Resume AI Analyzer")
+    st.title("📊 Resume Analyzer")
 
-    uploaded = st.file_uploader("Upload Resume (PDF - Max 5MB)", type=["pdf"])
+    uploaded = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
     job_desc = st.text_area("Paste Job Description")
 
     def extract_text(file):
@@ -232,7 +205,7 @@ elif mode == "📊 Resume Analyzer":
     if uploaded:
 
         if uploaded.size > 5 * 1024 * 1024:
-            st.error("File too large (Max 5MB)")
+            st.error("File too large")
         else:
 
             resume_text = extract_text(uploaded)
@@ -246,17 +219,7 @@ elif mode == "📊 Resume Analyzer":
                 score = min(len(match) * 3, 100)
 
                 st.success(f"ATS Score: {score}/100")
-
-                st.subheader("Matched Keywords")
                 st.write(list(match))
-
-                st.subheader("Improvement Suggestions")
-                st.info("""
-✔ Add missing keywords from job description  
-✔ Use numbers (impact metrics)  
-✔ Improve project descriptions  
-✔ Add tools like Python, SQL, ML, GenAI  
-""")
 
 # ─────────────────────────────
 # 🌐 PORTFOLIO BUILDER
@@ -266,13 +229,13 @@ elif mode == "🌐 Portfolio Builder":
     st.title("🌐 Portfolio Builder")
 
     name = st.text_input("Name")
-    about = st.text_area("About Me")
+    about = st.text_area("About")
     skills = st.text_area("Skills")
     projects = st.text_area("Projects")
     certs = st.text_area("Certifications")
     exp = st.text_area("Experience")
     resume_link = st.text_input("Resume Link")
-    contact = st.text_input("Contact Info")
+    contact = st.text_input("Contact")
 
     if st.button("Generate Portfolio"):
 
@@ -280,27 +243,21 @@ elif mode == "🌐 Portfolio Builder":
         <html>
         <body>
         <h1>{name}</h1>
-
-        <h2>About Me</h2>
         <p>{about}</p>
-
         <h2>Skills</h2>
         <p>{skills}</p>
-
         <h2>Projects</h2>
         <p>{projects}</p>
-
         <h2>Certifications</h2>
         <p>{certs}</p>
-
         <h2>Experience</h2>
         <p>{exp}</p>
-
         <h2>Resume</h2>
         <p>{resume_link}</p>
-
         <h2>Contact</h2>
         <p>{contact}</p>
         </body>
         </html>
         """
+
+        st.success("Portfolio Generated (HTML Ready)")
