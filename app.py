@@ -24,7 +24,7 @@ with st.sidebar:
 # ─────────────────────────────
 # 💼 JOB ENGINE (WITH APPLY LINKS)
 # ─────────────────────────────
-elif mode == "💼 Jobs":
+if mode == "💼 Jobs":
 
     st.title("💼 AI Job Engine - Apply Directly")
 
