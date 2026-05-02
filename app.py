@@ -23,245 +23,204 @@ with st.sidebar:
     )
 
 # ─────────────────────────────
-# AI TUTOR KNOWLEDGE ENGINE (UPGRADED)
+# 🧠 FIXED AI TUTOR (MAIN FIX AREA)
 # ─────────────────────────────
 def ai_tutor_response(question):
     q = question.lower()
 
-    responses = {
-        "ai": """
+    # 🔥 GENAI FIX (PRIORITY CHECK)
+    if "genai" in q or "generative ai" in q:
+        return """
+✨ **Generative AI (GenAI)**
+
+Generative AI is a branch of Artificial Intelligence that can **create new content** like text, images, code, audio, and videos.
+
+---
+
+🧠 **How it works:**
+It learns patterns from huge datasets and then generates new outputs based on user prompts.
+
+---
+
+🌍 **Real World Examples:**
+✔ ChatGPT → answers questions, writes content  
+✔ DALL·E → creates images from text  
+✔ GitHub Copilot → writes code automatically  
+✔ AI voice tools → generate human-like speech  
+
+---
+
+🧩 **Easy Understanding:**
+GenAI is like a **creative digital brain** that can imagine and produce new things like humans.
+
+---
+
+💼 **Career Uses:**
+✔ Prompt Engineer  
+✔ GenAI Developer  
+✔ AI Automation Engineer  
+✔ Content Generation Specialist  
+
+---
+
+🚀 **Why it matters:**
+GenAI is transforming industries like education, marketing, software development, and entertainment.
+"""
+
+    if "ai" in q:
+        return """
 🤖 **Artificial Intelligence (AI)**
 
-AI means machines performing tasks that usually need human intelligence.
+AI is technology that enables machines to perform tasks that normally require human intelligence.
 
-### Real World Examples:
-✔ Siri / Alexa voice assistants  
-✔ Self-driving cars  
+---
+
+🧠 **What AI does:**
+✔ Decision making  
+✔ Problem solving  
+✔ Learning from data  
+
+---
+
+🌍 **Real World Examples:**
+✔ Siri / Alexa  
 ✔ Netflix recommendations  
-✔ Face unlock in phones  
+✔ Face recognition  
+✔ Self-driving cars  
 
-### Easy Understanding:
-AI is like teaching a machine to think and decide.
+---
 
-### Career Uses:
-AI Engineer, Robotics, Automation, Chatbot Developer
-""",
+🧩 **Simple Understanding:**
+AI is like teaching a machine to think and act like humans.
 
-        "ml": """
+---
+
+💼 **Career Uses:**
+✔ AI Engineer  
+✔ Robotics Developer  
+✔ Automation Engineer  
+"""
+
+    if "ml" in q:
+        return """
 📘 **Machine Learning (ML)**
 
-ML is a part of AI where machines learn patterns from data.
+ML is a subset of AI where machines learn from data without explicit programming.
 
-### Real World Examples:
+---
+
+🌍 **Real World Examples:**
 ✔ Spam email detection  
-✔ Product recommendations  
-✔ Fraud detection in banking  
-✔ YouTube suggested videos  
+✔ YouTube recommendations  
+✔ Fraud detection  
 
-### Easy Understanding:
-Instead of coding every rule, we give data and machine learns itself.
-""",
+---
 
-        "deep learning": """
+🧩 **Simple Understanding:**
+Instead of writing rules, we give data and machine learns patterns automatically.
+"""
+
+    if "dl" in q or "deep learning" in q:
+        return """
 🧠 **Deep Learning (DL)**
 
-Deep Learning uses neural networks similar to the human brain.
+DL is a type of ML using neural networks inspired by the human brain.
 
-### Real World Examples:
+---
+
+🌍 **Real World Examples:**
 ✔ Face recognition  
 ✔ Voice assistants  
-✔ Self-driving cars  
-✔ Medical image diagnosis  
+✔ Medical diagnosis  
 
-### Easy Understanding:
-DL is advanced ML used for images, audio, videos.
-""",
+---
 
-        "genai": """
-✨ **Generative AI**
+🧩 **Simple Understanding:**
+Used for complex problems like images, speech, and videos.
+"""
 
-Generative AI creates new content like text, images, videos, code.
-
-### Real World Examples:
-✔ ChatGPT writes answers  
-✔ Midjourney creates images  
-✔ AI music generation  
-✔ AI coding assistants  
-
-### Easy Understanding:
-Instead of only analyzing data, GenAI creates something new.
-""",
-
-        "llm": """
+    if "llm" in q:
+        return """
 📚 **Large Language Model (LLM)**
 
-LLMs are AI models trained on huge text data.
+LLMs are AI models trained on massive text datasets.
 
-### Real World Examples:
+---
+
+🌍 **Examples:**
 ✔ ChatGPT  
 ✔ Gemini  
 ✔ Claude  
-✔ Copilot  
 
-### Easy Understanding:
-LLM understands language and gives smart human-like responses.
-""",
+---
 
-        "rag": """
+🧩 **Simple Understanding:**
+LLMs understand language and generate human-like responses.
+"""
+
+    if "rag" in q:
+        return """
 🔎 **RAG (Retrieval Augmented Generation)**
 
-RAG combines Search + AI Answering.
+RAG combines search systems with AI models.
 
-### Real World Example:
-Upload PDFs and ask questions from documents.
+---
 
-### Easy Understanding:
-Instead of only memory, AI searches data first then answers.
-
-### Used In:
-✔ Company chatbots  
+🌍 **Real Use Cases:**
+✔ PDF chatbots  
 ✔ Resume analyzers  
-✔ Document assistants
-""",
+✔ Knowledge bots  
 
-        "python": """
-🐍 **Python**
+---
 
-Python is the most popular language for AI / Data Science.
-
-### Real World Uses:
-✔ AI development  
-✔ Web apps  
-✔ Automation  
-✔ Data analysis  
-✔ ML projects  
-
-### Why Python?
-✔ Easy syntax  
-✔ Huge libraries  
-✔ Fast development
-""",
-
-        "sql": """
-🗄 **SQL**
-
-SQL is used to manage databases.
-
-### Real World Uses:
-✔ Company customer data  
-✔ Sales reports  
-✔ Dashboards  
-✔ Data Analyst jobs  
-
-### Example:
-SELECT * FROM employees;
-""",
-
-        "power bi": """
-📊 **Power BI**
-
-Power BI is used to create dashboards and reports.
-
-### Real World Uses:
-✔ Sales Dashboard  
-✔ HR Dashboard  
-✔ Finance Reports  
-✔ KPI Monitoring
-""",
-
-        "chatgpt": """
-💬 **ChatGPT**
-
-ChatGPT is an AI chatbot built using Large Language Models.
-
-### Uses:
-✔ Learning concepts  
-✔ Coding help  
-✔ Resume writing  
-✔ Content creation  
-✔ Business ideas
-""",
-
-        "numpy": """
-🔢 **NumPy**
-
-NumPy is a Python library used for numerical computing.
-
-### Used In:
-✔ Arrays  
-✔ Matrix operations  
-✔ AI calculations
-""",
-
-        "pandas": """
-📈 **Pandas**
-
-Pandas is used for data cleaning and analysis.
-
-### Real World Uses:
-✔ Excel-like data handling  
-✔ Reports  
-✔ Analytics
-""",
-
-        "streamlit": """
-🌐 **Streamlit**
-
-Streamlit is used to build web apps using Python easily.
-
-### Examples:
-✔ AI apps  
-✔ Dashboard apps  
-✔ Resume tools  
-✔ Chatbots
+🧩 **Simple Understanding:**
+AI first searches data, then generates answers.
 """
-    }
 
-    # Find keyword match
-    for key in responses:
-        if key in q:
-            return responses[key]
-
-    # Generic intelligent fallback
+    # 🔥 DEFAULT SMART LONG ANSWER
     return f"""
 🧠 **KronosAI Smart Tutor**
 
 You asked: **{question}**
 
-I understand you're asking something related to AI / Technology.
+---
 
-### Simple Explanation:
-This topic is important in modern technology and used in real-world applications.
+📌 **Explanation:**
+This topic is related to modern AI / Data Science / Software Engineering concepts.
 
-### Examples:
-✔ Automation  
-✔ Chatbots  
-✔ Data Science  
-✔ Software Development  
-✔ Business Growth  
+---
 
-### Tip:
-Try asking like:
-- What is Generative AI?
-- Explain Python with examples
-- Difference between AI and ML
-- How ChatGPT works
-- What is RAG?
+🌍 **Real World Usage:**
+✔ Used in automation systems  
+✔ Used in apps like Google, Amazon, Netflix  
+✔ Used in chatbots and AI assistants  
+
+---
+
+🧩 **Simple Understanding:**
+It is a technology used to build intelligent systems that solve real-world problems.
+
+---
+
+🚀 **Pro Tip:**
+To learn better, always ask:
+✔ "Explain with example"
+✔ "Real life use case"
+✔ "Step by step working"
 """
 
 # ─────────────────────────────
-# 🧠 AI TUTOR
+# 🧠 AI TUTOR UI
 # ─────────────────────────────
 if mode == "🧠 AI Tutor":
 
     st.title("🧠 KronosAI Tutor")
-    st.subheader("Ask Any Question About AI / ML / Python / Data Science / GenAI / Tools")
+    st.subheader("Ask anything about AI / ML / GenAI / Python / Data Science")
 
-    q = st.text_input("Ask anything")
+    q = st.text_input("Ask your question")
 
     if q:
-        answer = ai_tutor_response(q)
-        st.success(answer)
+        st.success(ai_tutor_response(q))
 
 # ─────────────────────────────
 # 💼 JOB ENGINE
@@ -343,10 +302,10 @@ elif mode == "🎯 Quiz Game":
             st.rerun()
 
 # ─────────────────────────────
-# OTHER MODULES SAME AS YOUR CODE
+# OTHER MODULES (UNCHANGED)
 # ─────────────────────────────
 elif mode == "📄 Resume Builder":
-    st.title("📄 ATS Resume Builder")
+    st.title("📄 Resume Builder")
     st.info("Your existing code remains same.")
 
 elif mode == "📊 Resume Analyzer":
